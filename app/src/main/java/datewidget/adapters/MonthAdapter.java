@@ -1,6 +1,7 @@
 package datewidget.adapters;
 
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.ViewGroup;
 
 import datewidget.holders.WeekViewHolder;
@@ -11,6 +12,8 @@ import java.util.Calendar;
  * Created by priyabratapatnaik on 03/11/15.
  */
 public class MonthAdapter extends RecyclerView.Adapter<WeekViewHolder> {
+
+    private static final String TAG = MonthAdapter.class.getSimpleName();
 
     @Override
     public WeekViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -48,6 +51,7 @@ public class MonthAdapter extends RecyclerView.Adapter<WeekViewHolder> {
             year = calendar.get(Calendar.YEAR);
             month = calendar.get(Calendar.MONTH);
             day = calendar.get(Calendar.DAY_OF_MONTH);
+            Log.v(TAG, String.format("Month: %s, Day: %s, Year: %s", month, day, year));
         }
 
         public CalendarDay(int year, int month, int day) {

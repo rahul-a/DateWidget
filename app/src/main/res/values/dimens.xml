@@ -4,6 +4,8 @@
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="mdtp_month_day_label_text_size">12sp</dimen>
     <dimen name="mdtp_day_number_select_circle_radius">16dp</dimen>
-    <dimen name="mdtp_date_picker_view_animator_height">252dp</dimen>
+    <dimen name="mdtp_date_picker_view_animator_height">128dp</dimen>
     <dimen name="mdtp_day_number_size">12sp</dimen>
+    <dimen name="mdtp_month_list_item_header_height">24dp</dimen>
+    <dimen name="mdtp_month_row_height">72dp</dimen>
 </resources>

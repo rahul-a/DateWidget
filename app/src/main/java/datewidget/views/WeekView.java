@@ -9,6 +9,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -156,15 +157,16 @@ public abstract class WeekView extends View {
             mDisabledDayTextColor = ContextCompat.getColor(context, R.color.mdtp_date_picker_text_disabled);
             mHighlightedDayTextColor = ContextCompat.getColor(context, R.color.mdtp_date_picker_text_highlighted);
         }
+        mSelectedDayTextColor = ContextCompat.getColor(context, R.color.mdtp_white);
         mTodayNumberColor = mController.getAccentColor();
 
         MINI_DAY_NUMBER_TEXT_SIZE = res.getDimensionPixelSize(R.dimen.mdtp_day_number_size);
         // MONTH_LABEL_TEXT_SIZE = res.getDimensionPixelSize(R.dimen.mdtp_month_label_size);
         MONTH_DAY_LABEL_TEXT_SIZE = res.getDimensionPixelSize(R.dimen.mdtp_month_day_label_text_size);
-        // MONTH_HEADER_SIZE = res.getDimensionPixelOffset(R.dimen.mdtp_month_list_item_header_height);
+        MONTH_HEADER_SIZE = res.getDimensionPixelOffset(R.dimen.mdtp_month_list_item_header_height);
         DAY_SELECTED_CIRCLE_SIZE = res.getDimensionPixelSize(R.dimen.mdtp_day_number_select_circle_radius);
 
-        mRowHeight = (res.getDimensionPixelOffset(R.dimen.mdtp_date_picker_view_animator_height)) / MAX_NUM_ROWS;
+        mRowHeight = (res.getDimensionPixelOffset(R.dimen.mdtp_month_row_height)) / MAX_NUM_ROWS;
 
         // Sets up any standard paints that will be used
         initView();
@@ -180,6 +182,9 @@ public abstract class WeekView extends View {
         int y = (((mRowHeight + MINI_DAY_NUMBER_TEXT_SIZE) / 2) - DAY_SEPARATOR_WIDTH);
         final float dayWidthHalf = (mWidth - mEdgePadding * 2) / (mNumDays * 2.0f);
         int j = findDayOffset();
+        if (j > 0) {
+            mNumCells = mNumDays - j;
+        }
         for (int dayNumber = 1; dayNumber <= mNumCells; dayNumber++) {
             final int x = (int)((2 * j + 1) * dayWidthHalf + mEdgePadding);
 
@@ -225,6 +230,7 @@ public abstract class WeekView extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
+        drawMonthDayLabels(canvas);
         drawMonthNums(canvas);
     }
 
@@ -313,7 +319,14 @@ public abstract class WeekView extends View {
         mMonthDayLabelPaint.setAntiAlias(true);
         mMonthDayLabelPaint.setTextSize(MONTH_DAY_LABEL_TEXT_SIZE);
         mMonthDayLabelPaint.setColor(mMonthDayTextColor);
-        // mMonthDayLabelPaint.setTypeface(TypefaceHelper.get(getContext(),"Roboto-Medium"));
+        mMonthDayLabelPaint.setStyle(Paint.Style.FILL);
+        mMonthDayLabelPaint.setTextAlign(Paint.Align.CENTER);
+        mMonthDayLabelPaint.setFakeBoldText(true);
+
+        mMonthDayLabelPaint = new Paint();
+        mMonthDayLabelPaint.setAntiAlias(true);
+        mMonthDayLabelPaint.setTextSize(MONTH_DAY_LABEL_TEXT_SIZE);
+        mMonthDayLabelPaint.setColor(mMonthDayTextColor);
         mMonthDayLabelPaint.setStyle(Paint.Style.FILL);
         mMonthDayLabelPaint.setTextAlign(Paint.Align.CENTER);
         mMonthDayLabelPaint.setFakeBoldText(true);
@@ -374,7 +387,7 @@ public abstract class WeekView extends View {
             mWeekStart = mCalendar.getFirstDayOfWeek();
         }
 
-        mNumCells = mCalendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+        mNumCells = 7;
         for (int i = 0; i < mNumCells; i++) {
             final int day = i + 1;
             if (sameDay(day, today)) {
@@ -401,8 +414,10 @@ public abstract class WeekView extends View {
             if(month > c.get(Calendar.MONTH)) continue;
             if(day < c.get(Calendar.DAY_OF_MONTH)) break;
             if(day > c.get(Calendar.DAY_OF_MONTH)) continue;
+            Log.v(TAG, String.format("Highlighted:: day: %s, month: %s, year: %s", day, month, year));
             return true;
         }
+        Log.v(TAG, String.format("NOT Highlighted:: day: %s, month: %s, year: %s", day, month, year));
         return false;
     }
 
@@ -436,5 +451,45 @@ public abstract class WeekView extends View {
 
     public int getYear() {
         return mYear;
+    }
+
+    /**
+     * A wrapper to the MonthHeaderSize to allow override it in children
+     */
+    protected int getMonthHeaderSize() {
+        return MONTH_HEADER_SIZE;
+    }
+
+    protected void drawMonthDayLabels(Canvas canvas) {
+        int y = getMonthHeaderSize() - (MONTH_DAY_LABEL_TEXT_SIZE / 2);
+        int dayWidthHalf = (mWidth - mEdgePadding * 2) / (mNumDays * 2);
+
+        for (int i = 0; i < mNumDays; i++) {
+            int x = (2 * i + 1) * dayWidthHalf + mEdgePadding;
+
+            int calendarDay = (i + mWeekStart) % mNumDays;
+            mDayLabelCalendar.set(Calendar.DAY_OF_WEEK, calendarDay);
+            Locale locale = Locale.getDefault();
+            String localWeekDisplayName = mDayLabelCalendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.SHORT, locale);
+            String weekString = localWeekDisplayName.toUpperCase(locale).substring(0, 3);
+
+            if (locale.equals(Locale.CHINA) || locale.equals(Locale.CHINESE) || locale.equals(Locale.SIMPLIFIED_CHINESE) || locale.equals(Locale.TRADITIONAL_CHINESE)) {
+                int len = localWeekDisplayName.length();
+                weekString = localWeekDisplayName.substring(len -1, len);
+            }
+
+            if (locale.getLanguage().equals("he") || locale.getLanguage().equals("iw")) {
+                if(mDayLabelCalendar.get(Calendar.DAY_OF_WEEK) != Calendar.SATURDAY) {
+                    int len = localWeekDisplayName.length();
+                    weekString = localWeekDisplayName.substring(len - 2, len - 1);
+                }
+                else {
+                    // I know this is duplication, but it makes the code easier to grok by
+                    // having all hebrew code in the same block
+                    weekString = localWeekDisplayName.toUpperCase(locale).substring(0, 1);
+                }
+            }
+            canvas.drawText(weekString, x, y, mMonthDayLabelPaint);
+        }
     }
 }

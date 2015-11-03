@@ -4,6 +4,7 @@ import android.graphics.Canvas;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.widget.FrameLayout;
 
 import com.sample.datewidget.R;
@@ -14,10 +15,13 @@ import java.util.HashMap;
 
 import datewidget.adapters.MonthAdapter;
 import datewidget.controllers.DatePickerController;
+import datewidget.utils.Utils;
 import datewidget.views.SimpleWeekView;
 import datewidget.views.WeekView;
 
 public class MainActivity extends AppCompatActivity {
+
+    private static final String TAG = MainActivity.class.getSimpleName();
 
     DatePickerController mDatePickerController = new DatePickerController() {
 
@@ -146,16 +150,29 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mAccentColor = Utils.getAccentColorFromThemeIfAvailable(this);
         WeekView weekView = new SimpleWeekView(this, null, mDatePickerController);
-        final int month = 1 % MONTHS_IN_YEAR;
-        final int year = 1 / MONTHS_IN_YEAR + mDatePickerController.getMinYear();
+        MonthAdapter.CalendarDay calendarDay = new MonthAdapter.CalendarDay();
+
+        final int position = (calendarDay.getYear() - mDatePickerController.getMinYear())
+                * MONTHS_IN_YEAR + calendarDay.getMonth();
+
+        final int month = position % MONTHS_IN_YEAR;
+        final int year = position / MONTHS_IN_YEAR + mDatePickerController.getMinYear();
+
+        Log.v(TAG, String.format("Year: %s, minYear: %s", year, mDatePickerController.getMinYear()));
 
         int selectedDay = -1;
         mSelectedDay = mDatePickerController.getSelectedDay();
 
         if (isSelectedDayInMonth(year, month)) {
             selectedDay = mSelectedDay.getDay();
+            Log.v(TAG, "Selected Day --> " + selectedDay);
         }
+
+
+        FrameLayout frameLayout = (FrameLayout) findViewById(R.id.date_frame);
+        frameLayout.addView(weekView);
 
         HashMap<String, Integer> drawingParams = new HashMap<>();
         drawingParams.put(WeekView.VIEW_PARAMS_SELECTED_DAY, selectedDay);
@@ -163,9 +180,7 @@ public class MainActivity extends AppCompatActivity {
         drawingParams.put(WeekView.VIEW_PARAMS_MONTH, month);
         drawingParams.put(WeekView.VIEW_PARAMS_WEEK_START, mDatePickerController.getFirstDayOfWeek());
         weekView.setMonthParams(drawingParams);
-
-        FrameLayout frameLayout = (FrameLayout) findViewById(R.id.date_frame);
-        frameLayout.addView(weekView);
+        weekView.invalidate();
     }
 
     private boolean isAfterMax(int year, int month, int day) {

@@ -24,18 +24,16 @@ public class SimpleWeekView extends WeekView {
                     mSelectedCirclePaint);
         }
 
-        if(isHighlighted(year, month, day)) {
+        if (isHighlighted(year, month, day)) {
             mMonthNumPaint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
-        }
-        else {
+        } else {
             mMonthNumPaint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.NORMAL));
         }
 
         // If we have a mindate or maxdate, gray out the day number if it's outside the range.
         if (mController.isOutOfRange(year, month, day)) {
             mMonthNumPaint.setColor(mDisabledDayTextColor);
-        }
-        else if (mSelectedDay == day) {
+        } else if (mSelectedDay == day) {
             mMonthNumPaint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
             mMonthNumPaint.setColor(mSelectedDayTextColor);
         } else if (mHasToday && mToday == day) {
