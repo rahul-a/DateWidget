@@ -12,6 +12,7 @@ import com.sample.datewidget.fragments.DatePickerFragment;
 
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Locale;
 
 import datewidget.adapters.MonthAdapter;
 import datewidget.controllers.DatePickerController;
@@ -135,7 +136,13 @@ public class MainActivity extends AppCompatActivity {
 
     private MonthAdapter.CalendarDay mSelectedDay;
     private final Calendar mCalendar = Calendar.getInstance();
-    private int mWeekStart = mCalendar.getFirstDayOfWeek();
+    /**
+     * Defines the first day of the week to be shown in labels, if {@link Calendar#getFirstDayOfWeek()} is used
+     * then the First day becomes locale specific in labels
+     *
+     * Example SUNDAY for en_US, MONDAY for en_GB
+     */
+    private int mWeekStart = Calendar.SUNDAY;
     private int mMinYear = DEFAULT_START_YEAR;
     private int mMaxYear = DEFAULT_END_YEAR;
     private String mTitle;
