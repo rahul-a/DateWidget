@@ -2,9 +2,12 @@ package datewidget.controllers;
 
 import com.sample.datewidget.fragments.DatePickerFragment;
 
+import org.joda.time.DateTime;
+
 import java.util.Calendar;
 
 import datewidget.adapters.MonthAdapter;
+import datewidget.views.WeekView;
 
 /**
  * Created by priyabratapatnaik on 03/11/15.
@@ -12,19 +15,19 @@ import datewidget.adapters.MonthAdapter;
 public interface DatePickerController {
     void onYearSelected(int year);
 
-    void onDayOfMonthSelected(int year, int month, int day);
+    void onDayOfMonthSelected(WeekView.Day day);
 
     void registerOnDateChangedListener(DatePickerFragment.OnDateChangedListener listener);
 
     void unregisterOnDateChangedListener(DatePickerFragment.OnDateChangedListener listener);
 
-    MonthAdapter.CalendarDay getSelectedDay();
+    WeekView.Day getSelectedDay();
 
     boolean isThemeDark();
 
     int getAccentColor();
 
-    Calendar[] getHighlightedDays();
+    WeekView.Day[] getHighlightedDays();
 
     Calendar[] getSelectableDays();
 
@@ -34,7 +37,7 @@ public interface DatePickerController {
 
     int getMaxYear();
 
-    boolean isOutOfRange(int year, int month, int day);
+    boolean isOutOfRange(WeekView.Day day);
 
     void tryVibrate();
 }

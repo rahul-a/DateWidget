@@ -1,12 +1,13 @@
 package datewidget.adapters;
 
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.ViewGroup;
 
-import datewidget.holders.WeekViewHolder;
-
 import java.util.Calendar;
+import java.util.TimeZone;
+
+import datewidget.holders.WeekViewHolder;
+import timber.log.Timber;
 
 /**
  * Created by priyabratapatnaik on 03/11/15.
@@ -51,7 +52,7 @@ public class MonthAdapter extends RecyclerView.Adapter<WeekViewHolder> {
             year = calendar.get(Calendar.YEAR);
             month = calendar.get(Calendar.MONTH);
             day = calendar.get(Calendar.DAY_OF_MONTH);
-            Log.v(TAG, String.format("Month: %s, Day: %s, Year: %s", month, day, year));
+            Timber.v(String.format("Month: %s, Day: %s, Year: %s", month, day, year));
         }
 
         public CalendarDay(int year, int month, int day) {
@@ -75,6 +76,7 @@ public class MonthAdapter extends RecyclerView.Adapter<WeekViewHolder> {
                 calendar = Calendar.getInstance();
             }
             calendar.setTimeInMillis(timeInMillis);
+            calendar.setTimeZone(TimeZone.getDefault());
             month = calendar.get(Calendar.MONTH);
             year = calendar.get(Calendar.YEAR);
             day = calendar.get(Calendar.DAY_OF_MONTH);

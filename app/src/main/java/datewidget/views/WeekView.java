@@ -4,10 +4,8 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.graphics.Typeface;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -15,14 +13,15 @@ import android.view.View;
 
 import com.sample.datewidget.R;
 
+import org.joda.time.DateTime;
+
 import java.security.InvalidParameterException;
 import java.util.Calendar;
-import java.util.Formatter;
 import java.util.HashMap;
 import java.util.Locale;
 
-import datewidget.adapters.MonthAdapter;
 import datewidget.controllers.DatePickerController;
+import timber.log.Timber;
 
 /**
  * Created by priyabratapatnaik on 03/11/15.
@@ -42,13 +41,20 @@ public abstract class WeekView extends View {
     public static final String VIEW_PARAMS_HEIGHT = "height";
 
     /**
-     * This specifies the position (or weeks since the epoch) of this week.
+     * Specifies the month to be shown.
      */
     public static final String VIEW_PARAMS_MONTH = "month";
+
     /**
-     * This specifies the position (or weeks since the epoch) of this week.
+     * Specifies the current year to be shown.
      */
     public static final String VIEW_PARAMS_YEAR = "year";
+
+    /**
+     * Specifies the position week to be shown depending on the date.
+     */
+    public static final String VIEW_PARAMS_DATE = "date";
+
     /**
      * This sets one of the days in this view as selected {@link Calendar#SUNDAY}
      * through {@link Calendar#SATURDAY}.
@@ -99,7 +105,7 @@ public abstract class WeekView extends View {
     // If this view contains the today
     protected boolean mHasToday = false;
     // Which day is selected [0-6] or -1 if no day is selected
-    protected int mSelectedDay = -1;
+    protected Day mSelectedDay = new Day();
     // Which day is today [0-6] or -1 if no day is today
     protected int mToday = DEFAULT_SELECTED_DAY;
     // Which day of the week to start on [0-6]
@@ -124,12 +130,13 @@ public abstract class WeekView extends View {
 
     private final Calendar mCalendar;
     protected final Calendar mDayLabelCalendar;
+    protected Day[] mDays = new Day[mNumDays];
 
     /**
      * Handles callbacks when the user clicks on a time object.
      */
     public interface OnDayClickListener {
-        void onDayClick(WeekView view, MonthAdapter.CalendarDay day);
+        void onDayClick(WeekView view, Day day);
     }
 
     public WeekView(Context context) {
@@ -138,6 +145,7 @@ public abstract class WeekView extends View {
 
     public WeekView(Context context, AttributeSet attrs, DatePickerController controller) {
         super(context, attrs);
+
         mController = controller;
         Resources res = context.getResources();
 
@@ -170,6 +178,7 @@ public abstract class WeekView extends View {
 
         // Sets up any standard paints that will be used
         initView();
+        getDayNumbers();
     }
 
     /**
@@ -181,21 +190,18 @@ public abstract class WeekView extends View {
     protected void drawMonthNums(Canvas canvas) {
         int y = (((mRowHeight + MINI_DAY_NUMBER_TEXT_SIZE) / 2) - DAY_SEPARATOR_WIDTH);
         final float dayWidthHalf = (mWidth - mEdgePadding * 2) / (mNumDays * 2.0f);
-        int j = findDayOffset();
-        if (j > 0) {
-            mNumCells = mNumDays - j;
-        }
-        for (int dayNumber = 1; dayNumber <= mNumCells; dayNumber++) {
+        int j = 0;
+        for (int dayNumber = 0; dayNumber < mNumCells; dayNumber++) {
             final int x = (int)((2 * j + 1) * dayWidthHalf + mEdgePadding);
 
             int yRelativeToDay = (mRowHeight + MINI_DAY_NUMBER_TEXT_SIZE) / 2 - DAY_SEPARATOR_WIDTH;
 
             final int startX = (int)(x - dayWidthHalf);
             final int stopX = (int)(x + dayWidthHalf);
-            final int startY = (int)(y - yRelativeToDay);
-            final int stopY = (int)(startY + mRowHeight);
+            final int startY = (y - yRelativeToDay);
+            final int stopY = (startY + mRowHeight);
 
-            drawMonthDay(canvas, mYear, mMonth, dayNumber, x, y, startX, stopX, startY, stopY);
+            drawMonthDay(canvas, mDays[dayNumber], x, y, startX, stopX, startY, stopY);
 
             j++;
             if (j == mNumDays) {
@@ -205,13 +211,37 @@ public abstract class WeekView extends View {
         }
     }
 
+    private int[] getDayNumbers() {
+        int[] days = new int[7];
+        DateTime currentDateTime;
+        if (mToday == 0 || mMonth == 0 || mYear == 0) {
+            currentDateTime = new DateTime();
+        } else {
+            currentDateTime = new DateTime(mYear, mMonth, mToday, 0, 0, 0);
+        }
+        DateTime startDate = new DateTime(currentDateTime.getYear(), currentDateTime.getMonthOfYear(),
+                currentDateTime.dayOfWeek().withMinimumValue().getDayOfMonth(), 0, 0, 0);
+
+        DateTime endDate = startDate.plusWeeks(1);
+
+        int i = 0;
+        while (startDate.isBefore(endDate)) {
+            if (i < 7) {
+                mDays[i] = new Day(startDate);
+                Timber.v("Day of week: %s,  %s", i, mDays[i]);
+                days[i++] = startDate.getDayOfMonth();
+            }
+            Timber.v("Week of week year: %s", startDate.getWeekOfWeekyear());
+            startDate = startDate.plusDays(1);
+        }
+
+        return days;
+    }
+
     /**
      * This method should draw the month day.  Implemented by sub-classes to allow customization.
      *
      * @param canvas  The canvas to draw on
-     * @param year  The year of this month day
-     * @param month  The month of this month day
-     * @param day  The day number of this month day
      * @param x  The default x position to draw the day number
      * @param y  The default y position to draw the day number
      * @param startX  The left boundary of the day number rect
@@ -219,11 +249,14 @@ public abstract class WeekView extends View {
      * @param startY  The top boundary of the day number rect
      * @param stopY  The bottom boundary of the day number rect
      */
-    public abstract void drawMonthDay(Canvas canvas, int year, int month, int day,
-                                      int x, int y, int startX, int stopX, int startY, int stopY);
+    public abstract void drawMonthDay(Canvas canvas, Day day, int x, int y, int startX, int stopX, int startY, int stopY);
 
 
     protected int findDayOffset() {
+        Timber.v("mDayOfWeekStart: %s, mWeekStart: %s", mDayOfWeekStart, mWeekStart);
+        int offset = (mDayOfWeekStart < mWeekStart ? (mDayOfWeekStart + mNumDays) : mDayOfWeekStart)
+                - mWeekStart;
+        Timber.v(String.format("Offset: %d", offset));
         return (mDayOfWeekStart < mWeekStart ? (mDayOfWeekStart + mNumDays) : mDayOfWeekStart)
                 - mWeekStart;
     }
@@ -241,11 +274,8 @@ public abstract class WeekView extends View {
      * @param x The x position of the touch event
      * @return The day number, or -1 if the position wasn't in a day
      */
-    public int getDayFromLocation(float x, float y) {
-        final int day = getInternalDayFromLocation(x, y);
-        if (day < 1 || day > mNumCells) {
-            return -1;
-        }
+    public Day getDayFromLocation(float x, float y) {
+        final Day day = getInternalDayFromLocation(x, y);
         return day;
     }
 
@@ -256,18 +286,17 @@ public abstract class WeekView extends View {
      * @param x The x position of the touch event
      * @return The day number
      */
-    protected int getInternalDayFromLocation(float x, float y) {
+    protected Day getInternalDayFromLocation(float x, float y) {
         int dayStart = mEdgePadding;
         if (x < dayStart || x > mWidth - mEdgePadding) {
-            return -1;
+            return null;
         }
-        // Selection is (x - start) / (pixels/day) == (x -s) * day / pixels
-        int row = (int) y / mRowHeight;
-        int column = (int) ((x - dayStart) * mNumDays / (mWidth - dayStart - mEdgePadding));
-
-        int day = column - findDayOffset() + 1;
-        day += row * mNumDays;
-        return day;
+        int column = (int) ((x - dayStart) * mNumDays / (mWidth - (2 * mEdgePadding)));
+        if (column < 0 || column > mNumCells) {
+            return null;
+        }
+        Timber.v("Day clicked: %s", mDays[column]);
+        return mDays[column];
     }
 
     /**
@@ -278,14 +307,14 @@ public abstract class WeekView extends View {
      *
      * @param day The day that was clicked
      */
-    private void onDayClick(int day) {
+    private void onDayClick(Day day) {
         // If the min / max date are set, only process the click if it's a valid selection.
-        if (mController.isOutOfRange(mYear, mMonth, day)) {
+        if (mController.isOutOfRange(day)) {
             return;
         }
 
         if (mOnDayClickListener != null) {
-            mOnDayClickListener.onDayClick(this, new MonthAdapter.CalendarDay(mYear, mMonth, day));
+            mOnDayClickListener.onDayClick(this, day);
         }
     }
 
@@ -293,8 +322,8 @@ public abstract class WeekView extends View {
     public boolean onTouchEvent(@NonNull MotionEvent event) {
         switch (event.getAction()) {
             case MotionEvent.ACTION_UP:
-                final int day = getDayFromLocation(event.getX(), event.getY());
-                if (day >= 0) {
+                final Day day = getDayFromLocation(event.getX(), event.getY());
+                if (day != null) {
                     onDayClick(day);
                 }
                 break;
@@ -361,24 +390,22 @@ public abstract class WeekView extends View {
                 mRowHeight = MIN_HEIGHT;
             }
         }
-        if (params.containsKey(VIEW_PARAMS_SELECTED_DAY)) {
-            mSelectedDay = params.get(VIEW_PARAMS_SELECTED_DAY);
-        }
 
         // Allocate space for caching the day numbers and focus values
         mMonth = params.get(VIEW_PARAMS_MONTH);
         mYear = params.get(VIEW_PARAMS_YEAR);
+        mToday = params.get(VIEW_PARAMS_DATE);
 
-        // Figure out what day today is
-        //final Time today = new Time(Time.getCurrentTimezone());
-        //today.setToNow();
-        final Calendar today = Calendar.getInstance();
+        if (mController != null) {
+            mSelectedDay = mController.getSelectedDay();
+        }
+
         mHasToday = false;
-        mToday = -1;
 
         mCalendar.set(Calendar.MONTH, mMonth);
         mCalendar.set(Calendar.YEAR, mYear);
-        mCalendar.set(Calendar.DAY_OF_MONTH, 1);
+        mCalendar.set(Calendar.DAY_OF_MONTH, mToday);
+
         mDayOfWeekStart = mCalendar.get(Calendar.DAY_OF_WEEK);
 
         if (params.containsKey(VIEW_PARAMS_WEEK_START)) {
@@ -386,53 +413,46 @@ public abstract class WeekView extends View {
         } else {
             mWeekStart = mCalendar.getFirstDayOfWeek();
         }
+        Log.v(TAG, String.format("mDayOfWeekStart: %s, mWeekStart: %s", mDayOfWeekStart, mWeekStart));
 
+        getDayNumbers();
         mNumCells = 7;
+
+        Day currentDay = new Day(mToday, mMonth, mYear);
+
         for (int i = 0; i < mNumCells; i++) {
-            final int day = i + 1;
-            if (sameDay(day, today)) {
+            Day tempDay = mDays[i];
+            if (tempDay.equals(currentDay)) {
                 mHasToday = true;
-                mToday = day;
+                Timber.v("Found today: %s", mToday);
             }
         }
         mNumRows = calculateNumRows();
     }
 
     /**
-     * @param year
-     * @param month
      * @param day
      * @return true if the given date should be highlighted
      */
-    protected boolean isHighlighted(int year, int month, int day) {
-        Calendar[] highlightedDays = mController.getHighlightedDays();
-        if(highlightedDays == null) return false;
-        for (Calendar c : highlightedDays) {
-            if(year < c.get(Calendar.YEAR)) break;
-            if(year > c.get(Calendar.YEAR)) continue;
-            if(month < c.get(Calendar.MONTH)) break;
-            if(month > c.get(Calendar.MONTH)) continue;
-            if(day < c.get(Calendar.DAY_OF_MONTH)) break;
-            if(day > c.get(Calendar.DAY_OF_MONTH)) continue;
-            Log.v(TAG, String.format("Highlighted:: day: %s, month: %s, year: %s", day, month, year));
-            return true;
+    protected boolean isHighlighted(Day day) {
+        Day[] highlightedDays = mController.getHighlightedDays();
+        if (highlightedDays == null) {
+            return false;
         }
-        Log.v(TAG, String.format("NOT Highlighted:: day: %s, month: %s, year: %s", day, month, year));
+        for (Day tempDay : highlightedDays) {
+            if (tempDay.equals(day)) {
+                return true;
+            }
+        }
+        Timber.v(String.format("NOT Highlighted:: day: %s, month: %s, year: %s", day.getDate(), day.getMonth(), day.getYear()));
         return false;
     }
-
 
     private int calculateNumRows() {
         int offset = findDayOffset();
         int dividend = (offset + mNumCells) / mNumDays;
         int remainder = (offset + mNumCells) % mNumDays;
         return (dividend + (remainder > 0 ? 1 : 0));
-    }
-
-    private boolean sameDay(int day, Calendar today) {
-        return mYear == today.get(Calendar.YEAR) &&
-                mMonth == today.get(Calendar.MONTH) &&
-                day == today.get(Calendar.DAY_OF_MONTH);
     }
 
     @Override
@@ -445,14 +465,6 @@ public abstract class WeekView extends View {
         mWidth = w;
     }
 
-    public int getMonth() {
-        return mMonth;
-    }
-
-    public int getYear() {
-        return mYear;
-    }
-
     /**
      * A wrapper to the MonthHeaderSize to allow override it in children
      */
@@ -460,6 +472,8 @@ public abstract class WeekView extends View {
         return MONTH_HEADER_SIZE;
     }
 
+    @Deprecated
+    // Todo take this logic into ItemDecoration for RecyclerView
     protected void drawMonthDayLabels(Canvas canvas) {
         int y = getMonthHeaderSize() - (MONTH_DAY_LABEL_TEXT_SIZE / 2);
         int dayWidthHalf = (mWidth - mEdgePadding * 2) / (mNumDays * 2);
@@ -491,5 +505,83 @@ public abstract class WeekView extends View {
             }
             canvas.drawText(weekString, x, y, mMonthDayLabelPaint);
         }
+    }
+
+    public static class Day {
+        int year;
+        int month;
+        String day;
+        int date;
+
+        public Day(DateTime dateTime) {
+            year = dateTime.getYear();
+            month = dateTime.getMonthOfYear();
+            day = dateTime.dayOfWeek().getAsShortText();
+            date = dateTime.getDayOfMonth();
+        }
+
+        public Day(int date, int month, int year) {
+            this.date = date;
+            this.month = month;
+            this.year = year;
+        }
+
+        public Day() {
+            DateTime dateTime = new DateTime();
+            year = dateTime.getYear();
+            month = dateTime.getMonthOfYear();
+            day = dateTime.dayOfWeek().getAsShortText();
+            date = dateTime.getDayOfMonth();
+        }
+
+        public int getYear() {
+            return year;
+        }
+
+        public int getMonth() {
+            return month;
+        }
+
+        public String getDay() {
+            return day;
+        }
+
+        public int getDate() {
+            return date;
+        }
+
+        @Override
+        public String toString() {
+            return String.format("Date: %s, Day: %s, Month: %s, Year: %s", date, day, month, year);
+        }
+
+        @Override
+        public boolean equals(Object object) {
+            if (this == null || object == null || !(object instanceof Day)) {
+                return false;
+            }
+
+            Day other = (Day) object;
+            if (year == other.getYear()) {
+                if (month == other.getMonth()) {
+                    if (date == other.getDate()) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+    }
+
+    public Day[] getDaysInWeek() {
+        return mDays;
+    }
+
+    public void setSelectedDay(Day selectedDay) {
+        mSelectedDay = selectedDay;
+    }
+
+    public void setOnDayClickListener(OnDayClickListener listener) {
+        mOnDayClickListener = listener;
     }
 }

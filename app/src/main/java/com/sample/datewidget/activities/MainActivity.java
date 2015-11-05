@@ -1,26 +1,24 @@
 package com.sample.datewidget.activities;
 
-import android.graphics.Canvas;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.RecyclerView;
-import android.util.Log;
+import android.support.v7.app.AppCompatActivity;
 import android.widget.FrameLayout;
 
 import com.sample.datewidget.R;
 import com.sample.datewidget.fragments.DatePickerFragment;
 
+import org.joda.time.DateTime;
+
 import java.util.Calendar;
 import java.util.HashMap;
-import java.util.Locale;
 
-import datewidget.adapters.MonthAdapter;
 import datewidget.controllers.DatePickerController;
 import datewidget.utils.Utils;
 import datewidget.views.SimpleWeekView;
 import datewidget.views.WeekView;
+import timber.log.Timber;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements WeekView.OnDayClickListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -59,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
          * @return The list of dates, as Calendar Objects, which should be highlighted. null is no dates should be highlighted
          */
         @Override
-        public Calendar[] getHighlightedDays() {
+        public WeekView.Day[] getHighlightedDays() {
             return highlightedDays;
         }
 
@@ -74,15 +72,14 @@ public class MainActivity extends AppCompatActivity {
          * Integer.MAX_VALUE.
          */
         @Override
-        public boolean isOutOfRange(int year, int month, int day) {
+        public boolean isOutOfRange(WeekView.Day day) {
             if (selectableDays != null) {
-                return !isSelectable(year, month, day);
+                return !isSelectable(day);
             }
 
-            if (isBeforeMin(year, month, day)) {
+            if (isBeforeMin(day)) {
                 return true;
-            }
-            else if (isAfterMax(year, month, day)) {
+            } else if (isAfterMax(day)) {
                 return true;
             }
 
@@ -97,32 +94,35 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onYearSelected(int year) {
             mCalendar.set(Calendar.YEAR, year);
-            adjustDayInMonthIfNeeded(mCalendar);
+            // adjustDayInMonthIfNeeded(mCalendar);
         }
 
         @Override
-        public void onDayOfMonthSelected(int year, int month, int day) {
-            mCalendar.set(Calendar.YEAR, year);
-            mCalendar.set(Calendar.MONTH, month);
-            mCalendar.set(Calendar.DAY_OF_MONTH, day);
+        public void onDayOfMonthSelected(WeekView.Day day) {
+            mSelectedDay = day;
+            Timber.v("Day Selected: %s", day);
         }
 
 
         @Override
-        public MonthAdapter.CalendarDay getSelectedDay() {
-            return new MonthAdapter.CalendarDay(mCalendar);
+        public WeekView.Day getSelectedDay() {
+            return new WeekView.Day(new DateTime());
         }
 
         @Override
         public int getMinYear() {
-            if(selectableDays != null) return selectableDays[0].get(Calendar.YEAR);
+            if (selectableDays != null) {
+                return selectableDays[0].getYear();
+            }
             // Ensure no years can be selected outside of the given minimum date
             return mMinDate != null && mMinDate.get(Calendar.YEAR) > mMinYear ? mMinDate.get(Calendar.YEAR) : mMinYear;
         }
 
         @Override
         public int getMaxYear() {
-            if(selectableDays != null) return selectableDays[selectableDays.length-1].get(Calendar.YEAR);
+            if (selectableDays != null) {
+                return selectableDays[selectableDays.length - 1].getYear();
+            }
             // Ensure no years can be selected outside of the given maximum date
             return mMaxDate != null && mMaxDate.get(Calendar.YEAR) < mMaxYear ? mMaxDate.get(Calendar.YEAR) : mMaxYear;
         }
@@ -131,10 +131,9 @@ public class MainActivity extends AppCompatActivity {
     private static final int DEFAULT_START_YEAR = 1900;
     private static final int DEFAULT_END_YEAR = 2100;
 
-    protected static int WEEK_7_OVERHANG_HEIGHT = 7;
     protected static final int MONTHS_IN_YEAR = 12;
 
-    private MonthAdapter.CalendarDay mSelectedDay;
+    private WeekView.Day mSelectedDay;
     private final Calendar mCalendar = Calendar.getInstance();
     /**
      * Defines the first day of the week to be shown in labels, if {@link Calendar#getFirstDayOfWeek()} is used
@@ -142,14 +141,14 @@ public class MainActivity extends AppCompatActivity {
      *
      * Example SUNDAY for en_US, MONDAY for en_GB
      */
-    private int mWeekStart = Calendar.SUNDAY;
+    private int mWeekStart = mCalendar.MONDAY;
     private int mMinYear = DEFAULT_START_YEAR;
     private int mMaxYear = DEFAULT_END_YEAR;
     private String mTitle;
     private Calendar mMinDate;
     private Calendar mMaxDate;
-    private Calendar[] highlightedDays;
-    private Calendar[] selectableDays;
+    private WeekView.Day[] highlightedDays;
+    private WeekView.Day[] selectableDays;
     private boolean mThemeDark = false;
     private int mAccentColor = -1;
 
@@ -159,41 +158,44 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         mAccentColor = Utils.getAccentColorFromThemeIfAvailable(this);
         WeekView weekView = new SimpleWeekView(this, null, mDatePickerController);
-        MonthAdapter.CalendarDay calendarDay = new MonthAdapter.CalendarDay();
+        weekView.setOnDayClickListener(this);
+        WeekView.Day calendarDay = new WeekView.Day();
 
         final int position = (calendarDay.getYear() - mDatePickerController.getMinYear())
                 * MONTHS_IN_YEAR + calendarDay.getMonth();
 
-        final int month = position % MONTHS_IN_YEAR;
+        final int month = (position % MONTHS_IN_YEAR) != 0 ? (position % MONTHS_IN_YEAR) : 12;
         final int year = position / MONTHS_IN_YEAR + mDatePickerController.getMinYear();
 
-        Log.v(TAG, String.format("Year: %s, minYear: %s", year, mDatePickerController.getMinYear()));
-
-        int selectedDay = -1;
         mSelectedDay = mDatePickerController.getSelectedDay();
 
-        if (isSelectedDayInMonth(year, month)) {
-            selectedDay = mSelectedDay.getDay();
-            Log.v(TAG, "Selected Day --> " + selectedDay);
-        }
-
+        Timber.v("Selected Day --> " + mSelectedDay.getDate());
 
         FrameLayout frameLayout = (FrameLayout) findViewById(R.id.date_frame);
         frameLayout.addView(weekView);
 
+        DateTime dateTime = new DateTime();
+
         HashMap<String, Integer> drawingParams = new HashMap<>();
-        drawingParams.put(WeekView.VIEW_PARAMS_SELECTED_DAY, selectedDay);
+
+        drawingParams.put(WeekView.VIEW_PARAMS_SELECTED_DAY, dateTime.getDayOfMonth());
         drawingParams.put(WeekView.VIEW_PARAMS_YEAR, year);
         drawingParams.put(WeekView.VIEW_PARAMS_MONTH, month);
+        drawingParams.put(WeekView.VIEW_PARAMS_DATE, dateTime.getDayOfMonth());
         drawingParams.put(WeekView.VIEW_PARAMS_WEEK_START, mDatePickerController.getFirstDayOfWeek());
+
         weekView.setMonthParams(drawingParams);
         weekView.invalidate();
     }
 
-    private boolean isAfterMax(int year, int month, int day) {
+    private boolean isAfterMax(WeekView.Day day) {
         if (mMaxDate == null) {
             return false;
         }
+
+        int year = day.getYear();
+        int month = day.getMonth();
+        int date = day.getDate();
 
         if (year > mMaxDate.get(Calendar.YEAR)) {
             return true;
@@ -207,7 +209,7 @@ public class MainActivity extends AppCompatActivity {
             return false;
         }
 
-        if (day > mMaxDate.get(Calendar.DAY_OF_MONTH)) {
+        if (date > mMaxDate.get(Calendar.DAY_OF_MONTH)) {
             return true;
         } else {
             return false;
@@ -218,10 +220,17 @@ public class MainActivity extends AppCompatActivity {
         return mSelectedDay.getYear() == year && mSelectedDay.getMonth() == month;
     }
 
-    private boolean isBeforeMin(int year, int month, int day) {
+    private boolean isSelectedDayInWeek(int year, int month) {
+        return mSelectedDay.getYear() == year && mSelectedDay.getMonth() == month;
+    }
+
+    private boolean isBeforeMin(WeekView.Day day) {
         if (mMinDate == null) {
             return false;
         }
+        int year = day.getYear();
+        int month = day.getMonth();
+        int date = day.getDate();
 
         if (year < mMinDate.get(Calendar.YEAR)) {
             return true;
@@ -235,14 +244,14 @@ public class MainActivity extends AppCompatActivity {
             return false;
         }
 
-        if (day < mMinDate.get(Calendar.DAY_OF_MONTH)) {
+        if (date < mMinDate.get(Calendar.DAY_OF_MONTH)) {
             return true;
         } else {
             return false;
         }
     }
 
-    // If the newly selected month / year does not contain the currently selected day number,
+    /*// If the newly selected month / year does not contain the currently selected day number,
     // change the selected day number to the last day of the selected month or year.
     //      e.g. Switching from Mar to Apr when Mar 31 is selected -> Apr 30
     //      e.g. Switching from 2012 to 2013 when Feb 29, 2012 is selected -> Feb 28, 2013
@@ -278,9 +287,9 @@ public class MainActivity extends AppCompatActivity {
             calendar.setTimeInMillis(mMaxDate.getTimeInMillis());
             return;
         }
-    }
+    }*/
 
-    private boolean isAfterMax(Calendar calendar) {
+    /*private boolean isAfterMax(Calendar calendar) {
         return isAfterMax(
                 calendar.get(Calendar.YEAR),
                 calendar.get(Calendar.MONTH),
@@ -294,18 +303,33 @@ public class MainActivity extends AppCompatActivity {
                 calendar.get(Calendar.MONTH),
                 calendar.get(Calendar.DAY_OF_MONTH)
         );
-    }
+    }*/
 
-    private boolean isSelectable(int year, int month, int day) {
-        for (Calendar c : selectableDays) {
-            if(year < c.get(Calendar.YEAR)) break;
-            if(year > c.get(Calendar.YEAR)) continue;
-            if(month < c.get(Calendar.MONTH)) break;
-            if(month > c.get(Calendar.MONTH)) continue;
-            if(day < c.get(Calendar.DAY_OF_MONTH)) break;
-            if(day > c.get(Calendar.DAY_OF_MONTH)) continue;
-            return true;
+    private boolean isSelectable(WeekView.Day day) {
+        for (WeekView.Day tempDay : selectableDays) {
+            if (tempDay.equals(day)) {
+                return true;
+            }
         }
         return false;
+    }
+
+    @Override
+    public void onDayClick(WeekView view, WeekView.Day day) {
+        if (day != null) {
+            onDayTapped(day);
+            view.setSelectedDay(day);
+            view.invalidate();
+        }
+    }
+
+    /**
+     * Maintains the same hour/min/sec but moves the day to the tapped day.
+     *
+     * @param day The day that was tapped
+     */
+    protected void onDayTapped(WeekView.Day day) {
+        Timber.v("Day tapped: %s", day);
+        mDatePickerController.onDayOfMonthSelected(day);
     }
 }
