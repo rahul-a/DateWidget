@@ -187,7 +187,7 @@ public abstract class WeekView extends View {
      *
      * @param canvas The canvas to draw on
      */
-    protected void drawMonthNums(Canvas canvas) {
+    protected void drawWeek(Canvas canvas) {
         int y = (((mRowHeight + MINI_DAY_NUMBER_TEXT_SIZE) / 2) - DAY_SEPARATOR_WIDTH);
         final float dayWidthHalf = (mWidth - mEdgePadding * 2) / (mNumDays * 2.0f);
         int j = 0;
@@ -201,7 +201,7 @@ public abstract class WeekView extends View {
             final int startY = (y - yRelativeToDay);
             final int stopY = (startY + mRowHeight);
 
-            drawMonthDay(canvas, mDays[dayNumber], x, y, startX, stopX, startY, stopY);
+            drawWeekDate(canvas, mDays[dayNumber], x, y, startX, stopX, startY, stopY);
 
             j++;
             if (j == mNumDays) {
@@ -239,7 +239,7 @@ public abstract class WeekView extends View {
     }
 
     /**
-     * This method should draw the month day.  Implemented by sub-classes to allow customization.
+     * This method should draw the week date.  Implemented by sub-classes to allow customization.
      *
      * @param canvas  The canvas to draw on
      * @param x  The default x position to draw the day number
@@ -249,7 +249,7 @@ public abstract class WeekView extends View {
      * @param startY  The top boundary of the day number rect
      * @param stopY  The bottom boundary of the day number rect
      */
-    public abstract void drawMonthDay(Canvas canvas, Day day, int x, int y, int startX, int stopX, int startY, int stopY);
+    public abstract void drawWeekDate(Canvas canvas, Day day, int x, int y, int startX, int stopX, int startY, int stopY);
 
 
     protected int findDayOffset() {
@@ -263,8 +263,8 @@ public abstract class WeekView extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        drawMonthDayLabels(canvas);
-        drawMonthNums(canvas);
+        drawWeekDayLabels(canvas);
+        drawWeek(canvas);
     }
 
     /**
@@ -474,7 +474,7 @@ public abstract class WeekView extends View {
 
     @Deprecated
     // Todo take this logic into ItemDecoration for RecyclerView
-    protected void drawMonthDayLabels(Canvas canvas) {
+    protected void drawWeekDayLabels(Canvas canvas) {
         int y = getMonthHeaderSize() - (MONTH_DAY_LABEL_TEXT_SIZE / 2);
         int dayWidthHalf = (mWidth - mEdgePadding * 2) / (mNumDays * 2);
 
