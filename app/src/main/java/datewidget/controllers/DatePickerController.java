@@ -40,4 +40,6 @@ public interface DatePickerController {
     boolean isOutOfRange(WeekView.Day day);
 
     void tryVibrate();
+
+    boolean isSelectable(WeekView.Day day);
 }

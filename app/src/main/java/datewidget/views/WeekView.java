@@ -105,7 +105,7 @@ public abstract class WeekView extends View {
     // If this view contains the today
     protected boolean mHasToday = false;
     // Which day is selected [0-6] or -1 if no day is selected
-    protected Day mSelectedDay = new Day();
+    protected Day mSelectedDay;
     // Which day is today [0-6] or -1 if no day is today
     protected int mToday = DEFAULT_SELECTED_DAY;
     // Which day of the week to start on [0-6]
@@ -295,7 +295,6 @@ public abstract class WeekView extends View {
         if (column < 0 || column > mNumCells) {
             return null;
         }
-        Timber.v("Day clicked: %s", mDays[column]);
         return mDays[column];
     }
 
@@ -312,6 +311,9 @@ public abstract class WeekView extends View {
         if (mController.isOutOfRange(day)) {
             return;
         }
+
+        mSelectedDay = day;
+        invalidate();
 
         if (mOnDayClickListener != null) {
             mOnDayClickListener.onDayClick(this, day);
@@ -397,7 +399,12 @@ public abstract class WeekView extends View {
         mToday = params.get(VIEW_PARAMS_DATE);
 
         if (mController != null) {
-            mSelectedDay = mController.getSelectedDay();
+            Day selectedDay = mController.getSelectedDay();
+            if (mController.isSelectable(selectedDay)) {
+                mSelectedDay = selectedDay;
+            } else {
+                mSelectedDay = null;
+            }
         }
 
         mHasToday = false;

@@ -19,7 +19,7 @@ public class SimpleWeekView extends WeekView {
     @Override
     public void drawWeekDate(Canvas canvas, Day day,
                              int x, int y, int startX, int stopX, int startY, int stopY) {
-        if (mSelectedDay.equals(day)) {
+        if (mSelectedDay != null && mSelectedDay.equals(day)) {
             canvas.drawCircle(x , y - (MINI_DAY_NUMBER_TEXT_SIZE / 3), DAY_SELECTED_CIRCLE_SIZE,
                     mSelectedCirclePaint);
         }
@@ -33,7 +33,7 @@ public class SimpleWeekView extends WeekView {
         // If we have a mindate or maxdate, gray out the day number if it's outside the range.
         if (mController.isOutOfRange(day)) {
             mMonthNumPaint.setColor(mDisabledDayTextColor);
-        } else if (mSelectedDay.equals(day)) {
+        } else if (mSelectedDay != null && mSelectedDay.equals(day)) {
             mMonthNumPaint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
             mMonthNumPaint.setColor(mSelectedDayTextColor);
         } else if (mHasToday && mToday == day.getDate()) {

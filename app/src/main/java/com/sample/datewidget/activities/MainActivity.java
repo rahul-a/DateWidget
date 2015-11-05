@@ -100,7 +100,6 @@ public class MainActivity extends AppCompatActivity implements WeekView.OnDayCli
         @Override
         public void onDayOfMonthSelected(WeekView.Day day) {
             mSelectedDay = day;
-            Timber.v("Day Selected: %s", day);
         }
 
 
@@ -126,6 +125,16 @@ public class MainActivity extends AppCompatActivity implements WeekView.OnDayCli
             // Ensure no years can be selected outside of the given maximum date
             return mMaxDate != null && mMaxDate.get(Calendar.YEAR) < mMaxYear ? mMaxDate.get(Calendar.YEAR) : mMaxYear;
         }
+
+        @Override
+        public boolean isSelectable(WeekView.Day day) {
+            for (WeekView.Day tempDay : selectableDays) {
+                if (tempDay.equals(day)) {
+                    return true;
+                }
+            }
+            return false;
+        }
     };
 
     private static final int DEFAULT_START_YEAR = 1900;
@@ -148,7 +157,7 @@ public class MainActivity extends AppCompatActivity implements WeekView.OnDayCli
     private Calendar mMinDate;
     private Calendar mMaxDate;
     private WeekView.Day[] highlightedDays;
-    private WeekView.Day[] selectableDays;
+    private WeekView.Day[] selectableDays = new WeekView.Day[] {new WeekView.Day(4, 11, 2015), new WeekView.Day(6, 11, 2015)};
     private boolean mThemeDark = false;
     private int mAccentColor = -1;
 
@@ -178,7 +187,9 @@ public class MainActivity extends AppCompatActivity implements WeekView.OnDayCli
 
         HashMap<String, Integer> drawingParams = new HashMap<>();
 
-        drawingParams.put(WeekView.VIEW_PARAMS_SELECTED_DAY, dateTime.getDayOfMonth());
+        if (mDatePickerController.isSelectable(mSelectedDay)) {
+            drawingParams.put(WeekView.VIEW_PARAMS_SELECTED_DAY, mSelectedDay.getDate());
+        }
         drawingParams.put(WeekView.VIEW_PARAMS_YEAR, year);
         drawingParams.put(WeekView.VIEW_PARAMS_MONTH, month);
         drawingParams.put(WeekView.VIEW_PARAMS_DATE, dateTime.getDayOfMonth());
@@ -305,31 +316,11 @@ public class MainActivity extends AppCompatActivity implements WeekView.OnDayCli
         );
     }*/
 
-    private boolean isSelectable(WeekView.Day day) {
-        for (WeekView.Day tempDay : selectableDays) {
-            if (tempDay.equals(day)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     @Override
     public void onDayClick(WeekView view, WeekView.Day day) {
         if (day != null) {
-            onDayTapped(day);
-            view.setSelectedDay(day);
-            view.invalidate();
+            Timber.v("Day tapped: %s", day);
+            mDatePickerController.onDayOfMonthSelected(day);
         }
-    }
-
-    /**
-     * Maintains the same hour/min/sec but moves the day to the tapped day.
-     *
-     * @param day The day that was tapped
-     */
-    protected void onDayTapped(WeekView.Day day) {
-        Timber.v("Day tapped: %s", day);
-        mDatePickerController.onDayOfMonthSelected(day);
     }
 }
