@@ -7,5 +7,6 @@
     <dimen name="mdtp_date_picker_view_animator_height">128dp</dimen>
     <dimen name="mdtp_day_number_size">12sp</dimen>
     <dimen name="mdtp_month_list_item_header_height">24dp</dimen>
-    <dimen name="mdtp_month_row_height">72dp</dimen>
+    <dimen name="mdtp_month_row_height">48dp</dimen>
+    <dimen name="day_separator">8dp</dimen>
 </resources>

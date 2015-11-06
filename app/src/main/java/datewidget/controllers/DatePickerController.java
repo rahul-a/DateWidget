@@ -2,11 +2,8 @@ package datewidget.controllers;
 
 import com.sample.datewidget.fragments.DatePickerFragment;
 
-import org.joda.time.DateTime;
-
 import java.util.Calendar;
 
-import datewidget.adapters.MonthAdapter;
 import datewidget.views.WeekView;
 
 /**

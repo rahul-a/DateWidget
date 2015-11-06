@@ -2,6 +2,8 @@ package com.sample.datewidget.activities;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.widget.FrameLayout;
 
 import com.sample.datewidget.R;
@@ -12,6 +14,7 @@ import org.joda.time.DateTime;
 import java.util.Calendar;
 import java.util.HashMap;
 
+import datewidget.adapters.WeekAdapter;
 import datewidget.controllers.DatePickerController;
 import datewidget.utils.Utils;
 import datewidget.views.SimpleWeekView;
@@ -128,9 +131,11 @@ public class MainActivity extends AppCompatActivity implements WeekView.OnDayCli
 
         @Override
         public boolean isSelectable(WeekView.Day day) {
-            for (WeekView.Day tempDay : selectableDays) {
-                if (tempDay.equals(day)) {
-                    return true;
+            if (selectableDays != null) {
+                for (WeekView.Day tempDay : selectableDays) {
+                    if (tempDay.equals(day)) {
+                        return true;
+                    }
                 }
             }
             return false;
@@ -157,14 +162,14 @@ public class MainActivity extends AppCompatActivity implements WeekView.OnDayCli
     private Calendar mMinDate;
     private Calendar mMaxDate;
     private WeekView.Day[] highlightedDays;
-    private WeekView.Day[] selectableDays = new WeekView.Day[] {new WeekView.Day(4, 11, 2015), new WeekView.Day(6, 11, 2015)};
+    private WeekView.Day[] selectableDays = null; //new WeekView.Day[] {new WeekView.Day(4, 11, 2015), new WeekView.Day(6, 11, 2015)};
     private boolean mThemeDark = false;
     private int mAccentColor = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_recycler_week);
         mAccentColor = Utils.getAccentColorFromThemeIfAvailable(this);
         WeekView weekView = new SimpleWeekView(this, null, mDatePickerController);
         weekView.setOnDayClickListener(this);
@@ -181,22 +186,34 @@ public class MainActivity extends AppCompatActivity implements WeekView.OnDayCli
         Timber.v("Selected Day --> " + mSelectedDay.getDate());
 
         FrameLayout frameLayout = (FrameLayout) findViewById(R.id.date_frame);
-        frameLayout.addView(weekView);
+        if (frameLayout != null) {
+            frameLayout.addView(weekView);
 
-        DateTime dateTime = new DateTime();
+            DateTime dateTime = new DateTime();
 
-        HashMap<String, Integer> drawingParams = new HashMap<>();
+            HashMap<String, Integer> drawingParams = new HashMap<>();
 
-        if (mDatePickerController.isSelectable(mSelectedDay)) {
-            drawingParams.put(WeekView.VIEW_PARAMS_SELECTED_DAY, mSelectedDay.getDate());
+            if (mDatePickerController.isSelectable(mSelectedDay)) {
+                drawingParams.put(WeekView.VIEW_PARAMS_SELECTED_DAY, mSelectedDay.getDate());
+            }
+            drawingParams.put(WeekView.VIEW_PARAMS_YEAR, year);
+            drawingParams.put(WeekView.VIEW_PARAMS_MONTH, month);
+            drawingParams.put(WeekView.VIEW_PARAMS_DATE, dateTime.getDayOfMonth());
+            drawingParams.put(WeekView.VIEW_PARAMS_WEEK_START, mDatePickerController.getFirstDayOfWeek());
+
+            weekView.setMonthParams(drawingParams);
+            weekView.invalidate();
         }
-        drawingParams.put(WeekView.VIEW_PARAMS_YEAR, year);
-        drawingParams.put(WeekView.VIEW_PARAMS_MONTH, month);
-        drawingParams.put(WeekView.VIEW_PARAMS_DATE, dateTime.getDayOfMonth());
-        drawingParams.put(WeekView.VIEW_PARAMS_WEEK_START, mDatePickerController.getFirstDayOfWeek());
 
-        weekView.setMonthParams(drawingParams);
-        weekView.invalidate();
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+        if (recyclerView != null) {
+            WeekAdapter weekAdapter = new WeekAdapter(mDatePickerController);
+            LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+            recyclerView.setHasFixedSize(true);
+            layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
+            recyclerView.setLayoutManager(layoutManager);
+            recyclerView.setAdapter(weekAdapter);
+        }
     }
 
     private boolean isAfterMax(WeekView.Day day) {
