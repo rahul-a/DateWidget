@@ -89,8 +89,6 @@ public abstract class WeekView extends View {
     // The height this view should draw at in pixels, set by height param
     protected int mDayNumFrameHeight = DEFAULT_HEIGHT;
 
-    protected int mNumRows = DEFAULT_NUM_ROWS;
-
     protected DatePickerController mController;
 
     // affects the padding on the sides of this view
@@ -126,7 +124,6 @@ public abstract class WeekView extends View {
     protected int mHighlightedDayTextColor;
     protected int mDisabledDayTextColor;
 
-    private final Calendar mCalendar;
     protected Day[] mDays = new Day[mNumDays];
 
     /**
@@ -154,10 +151,8 @@ public abstract class WeekView extends View {
         mController = controller;
         Resources res = context.getResources();
 
-        mCalendar = Calendar.getInstance();
-
         boolean darkTheme = mController != null && mController.isThemeDark();
-        if(darkTheme) {
+        if (darkTheme) {
             mDayTextColor = ContextCompat.getColor(context, R.color.mdtp_date_picker_text_normal_dark_theme);
             mMonthDayTextColor = ContextCompat.getColor(context, R.color.mdtp_date_picker_month_day_dark_theme);
             mDisabledDayTextColor = ContextCompat.getColor(context, R.color.mdtp_date_picker_text_disabled_dark_theme);
@@ -250,16 +245,6 @@ public abstract class WeekView extends View {
      * @param stopY  The bottom boundary of the day number rect
      */
     public abstract void drawWeekDate(Canvas canvas, Day day, int x, int y, int startX, int stopX, int startY, int stopY);
-
-
-    protected int findDayOffset() {
-        Timber.v("mDayOfWeekStart: %s, mWeekStart: %s", mDayOfWeekStart, mWeekStart);
-        int offset = (mDayOfWeekStart < mWeekStart ? (mDayOfWeekStart + mNumDays) : mDayOfWeekStart)
-                - mWeekStart;
-        Timber.v(String.format("Offset: %d", offset));
-        return (mDayOfWeekStart < mWeekStart ? (mDayOfWeekStart + mNumDays) : mDayOfWeekStart)
-                - mWeekStart;
-    }
 
     @Override
     protected void onDraw(Canvas canvas) {
@@ -401,19 +386,6 @@ public abstract class WeekView extends View {
 
         mHasToday = false;
 
-        mCalendar.set(Calendar.MONTH, mMonth);
-        mCalendar.set(Calendar.YEAR, mYear);
-        mCalendar.set(Calendar.DAY_OF_MONTH, mToday);
-
-        mDayOfWeekStart = mCalendar.get(Calendar.DAY_OF_WEEK);
-
-        if (params.containsKey(VIEW_PARAMS_WEEK_START)) {
-            mWeekStart = params.get(VIEW_PARAMS_WEEK_START);
-        } else {
-            mWeekStart = mCalendar.getFirstDayOfWeek();
-        }
-        // Log.v(TAG, String.format("mDayOfWeekStart: %s, mWeekStart: %s", mDayOfWeekStart, mWeekStart));
-
         getDayNumbers();
         mNumCells = 7;
 
@@ -426,7 +398,6 @@ public abstract class WeekView extends View {
                 Timber.v("Found today: %s", mToday);
             }
         }
-        mNumRows = calculateNumRows();
     }
 
     /**
@@ -445,13 +416,6 @@ public abstract class WeekView extends View {
         }
         Timber.v(String.format("NOT Highlighted:: day: %s, month: %s, year: %s", day.getDate(), day.getMonth(), day.getYear()));
         return false;
-    }
-
-    private int calculateNumRows() {
-        int offset = findDayOffset();
-        int dividend = (offset + mNumCells) / mNumDays;
-        int remainder = (offset + mNumCells) % mNumDays;
-        return (dividend + (remainder > 0 ? 1 : 0));
     }
 
     @Override
