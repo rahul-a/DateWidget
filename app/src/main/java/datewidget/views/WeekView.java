@@ -2,6 +2,7 @@ package datewidget.views;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.support.annotation.NonNull;
@@ -148,27 +149,30 @@ public abstract class WeekView extends View {
     public WeekView(Context context, AttributeSet attrs, DatePickerController controller) {
         super(context, attrs);
 
+        TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.weekView);
+
+        mDayTextColor = typedArray.getColor(R.styleable.weekView_day_text_color,
+                ContextCompat.getColor(context, R.color.mdtp_date_picker_text_normal));
+
+        mMonthDayTextColor = typedArray.getColor(R.styleable.weekView_week_label_color,
+                ContextCompat.getColor(context, R.color.mdtp_date_picker_month_day_dark_theme));
+
+        mDisabledDayTextColor = typedArray.getColor(R.styleable.weekView_muted_day_color,
+                ContextCompat.getColor(context, R.color.mdtp_date_picker_text_disabled_dark_theme));
+
+        mHighlightedDayTextColor = typedArray.getColor(R.styleable.weekView_selected_day_color,
+                ContextCompat.getColor(context, R.color.mdtp_date_picker_text_highlighted_dark_theme));
+
+        mSelectedDayTextColor = typedArray.getColor(R.styleable.weekView_selected_day_color,
+                ContextCompat.getColor(context, R.color.mdtp_white));
+
+        mTodayNumberColor = typedArray.getColor(R.styleable.weekView_today_color,
+                ContextCompat.getColor(context, R.color.mdtp_accent_color));
+
         mController = controller;
         Resources res = context.getResources();
 
-        boolean darkTheme = mController != null && mController.isThemeDark();
-        if (darkTheme) {
-            mDayTextColor = ContextCompat.getColor(context, R.color.mdtp_date_picker_text_normal_dark_theme);
-            mMonthDayTextColor = ContextCompat.getColor(context, R.color.mdtp_date_picker_month_day_dark_theme);
-            mDisabledDayTextColor = ContextCompat.getColor(context, R.color.mdtp_date_picker_text_disabled_dark_theme);
-            mHighlightedDayTextColor = ContextCompat.getColor(context, R.color.mdtp_date_picker_text_highlighted_dark_theme);
-        }
-        else {
-            mDayTextColor = ContextCompat.getColor(context, R.color.mdtp_date_picker_text_normal);
-            mMonthDayTextColor = ContextCompat.getColor(context, R.color.mdtp_date_picker_month_day);
-            mDisabledDayTextColor = ContextCompat.getColor(context, R.color.mdtp_date_picker_text_disabled);
-            mHighlightedDayTextColor = ContextCompat.getColor(context, R.color.mdtp_date_picker_text_highlighted);
-        }
-        mSelectedDayTextColor = ContextCompat.getColor(context, R.color.mdtp_white);
-        mTodayNumberColor = ContextCompat.getColor(context, R.color.mdtp_accent_color);//mController.getAccentColor();
-
         MINI_DAY_NUMBER_TEXT_SIZE = res.getDimensionPixelSize(R.dimen.mdtp_day_number_size);
-        // MONTH_LABEL_TEXT_SIZE = res.getDimensionPixelSize(R.dimen.mdtp_month_label_size);
         MONTH_DAY_LABEL_TEXT_SIZE = res.getDimensionPixelSize(R.dimen.mdtp_month_day_label_text_size);
         MONTH_HEADER_SIZE = res.getDimensionPixelOffset(R.dimen.mdtp_month_list_item_header_height);
         DAY_SELECTED_CIRCLE_SIZE = res.getDimensionPixelSize(R.dimen.mdtp_day_number_select_circle_radius);
