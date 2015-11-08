@@ -11,12 +11,12 @@
         android:scrollbars="horizontal"
         android:layout_above="@+id/dummy_text"
         android:layout_width="match_parent"
-        android:layout_height="200dp" />
+        android:layout_height="72dp" />
 
     <TextView
         android:id="@+id/dummy_text"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="72dp"
         android:padding="@dimen/activity_horizontal_margin"
         android:layout_alignParentBottom="true"
         android:text="Dummy text"

@@ -1,9 +1,14 @@
 package com.sample.datewidget.activities;
 
 import android.os.Bundle;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.MotionEvent;
+import android.view.VelocityTracker;
+import android.view.View;
+import android.view.ViewConfiguration;
 import android.widget.FrameLayout;
 
 import com.sample.datewidget.R;
@@ -207,13 +212,157 @@ public class MainActivity extends AppCompatActivity implements WeekView.OnDayCli
 
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         if (recyclerView != null) {
+            recyclerView.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    return false;
+                }
+            });
             WeekAdapter weekAdapter = new WeekAdapter(mDatePickerController);
-            LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+            final LinearLayoutManager layoutManager = new LinearLayoutManager(this);
             recyclerView.setHasFixedSize(true);
             layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
             recyclerView.setLayoutManager(layoutManager);
             recyclerView.setAdapter(weekAdapter);
+            recyclerView.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
+                @Override
+                public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
+                    int action = e.getAction();
+                    switch (action) {
+                        case MotionEvent.ACTION_DOWN:
+                            onDown(rv, e);
+                            break;
+
+                        case MotionEvent.ACTION_MOVE:
+                            return true;
+                    }
+                    return false;
+                }
+
+                @Override
+                public void onTouchEvent(RecyclerView rv, MotionEvent e) {
+                    int action = e.getAction();
+                    switch (action) {
+                        case MotionEvent.ACTION_DOWN:
+                            onDown(rv, e);
+                            break;
+
+                        case MotionEvent.ACTION_MOVE:
+                            onMove(e);
+                            break;
+
+                        case MotionEvent.ACTION_UP:
+                        case MotionEvent.ACTION_CANCEL:
+                            onUpOrCancel(rv, e);
+                            break;
+                    }
+                    RecyclerView.ViewHolder holder = getViewHolderUnder(rv, e.getX(), e.getY());
+                    Timber.v("Touched item %s: ", holder == null ? -1 : holder.getAdapterPosition());
+                }
+
+                @Override
+                public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+
+                }
+            });
+
+            final ViewConfiguration vc = ViewConfiguration.get(recyclerView.getContext());
+
+            mTouchSlop = vc.getScaledTouchSlop();
+            mMinFlingVelocity = vc.getScaledMinimumFlingVelocity();
+            mMaxFlingVelocity = vc.getScaledMaximumFlingVelocity();
+            mVelocityTracker = VelocityTracker.obtain();
         }
+    }
+
+    private int mInitialTouchX = 0, mInitialTouchY = 0, mLastTouchX = 0, mLastTouchY = 0;
+    private VelocityTracker mVelocityTracker;
+    private int mTouchSlop;
+    private int mMinFlingVelocity; // [pixels per second]
+    private int mMaxFlingVelocity; // [pixels per second]
+    private static final int MIN_DISTANCE_TOUCH_SLOP_MUL = 10;
+    private RecyclerView.ViewHolder mSwipingHolder = null;
+
+    private void onDown(RecyclerView rv, MotionEvent e) {
+        Timber.v("Enter:: onDown");
+        RecyclerView.ViewHolder holder = getViewHolderUnder(rv, e.getX(), e.getY());
+        if (holder == null) {
+            Timber.v("Holder null on down");
+            return;
+        }
+        int itemPosition = holder.getAdapterPosition();
+
+        final int touchX = (int) (e.getX() + 0.5f);
+        final int touchY = (int) (e.getY() + 0.5f);
+
+        final View view = holder.itemView;
+        final int translateX = (int) (ViewCompat.getTranslationX(view) + 0.5f);
+        final int translateY = (int) (ViewCompat.getTranslationY(view) + 0.5f);
+        final int viewX = touchX - (view.getLeft() + translateX);
+        final int viewY = touchY - (view.getTop() + translateY);
+
+        mInitialTouchX = touchX;
+        mInitialTouchY = touchY;
+
+        mSwipingHolder = holder;
+    }
+
+    private void onMove(MotionEvent e) {
+        Timber.v("Enter:: onMove");
+        mLastTouchX = (int) (e.getX() + 0.5f);
+        mLastTouchY = (int) (e.getY() + 0.5f);
+        mVelocityTracker.addMovement(e);
+    }
+
+    private void onUpOrCancel(RecyclerView rv, MotionEvent e) {
+        Timber.v("Enter:: onUpOrCancel");
+        RecyclerView.ViewHolder holder = mSwipingHolder;
+        if (holder == null) {
+            Timber.v("Holder is null");
+            return;
+        }
+        int itemPosition = holder.getAdapterPosition();
+        final View itemView = holder.itemView;
+        final int viewSize = itemView.getWidth();
+        final float distance = (mLastTouchX - mInitialTouchX);
+        final float absDistance = Math.abs(distance);
+
+        mVelocityTracker.computeCurrentVelocity(1000, mMaxFlingVelocity); // 1000: pixels per second
+
+        final float velocity = mVelocityTracker.getXVelocity();
+        final float absVelocity = Math.abs(velocity);
+
+        if ((absDistance > (mTouchSlop * MIN_DISTANCE_TOUCH_SLOP_MUL)) &&
+                ((distance * velocity) > 0.0f) &&
+                (absVelocity <= mMaxFlingVelocity) &&
+                ((absVelocity >= mMinFlingVelocity))) {
+            if (distance < 0) {
+                if (itemPosition < rv.getAdapter().getItemCount() - 1) {
+                    rv.smoothScrollToPosition(itemPosition + 1);
+                    Timber.v("Scrolling to pos: %s", itemPosition + 1);
+                } else {
+                    Timber.v("Couldn't scroll fwd");
+                }
+            } else if (distance > 0) {
+                if (itemPosition > 0) {
+                    rv.smoothScrollToPosition(itemPosition - 1);
+                    Timber.v("Scrolling to pos: %s", itemPosition - 1);
+                } else {
+                    Timber.v("Couldn't scroll back");
+                }
+            }
+        }
+
+        mSwipingHolder = null;
+    }
+
+    private static RecyclerView.ViewHolder getViewHolderUnder(RecyclerView rv, float x, float y) {
+        View childView  = rv.findChildViewUnder(x, y);
+        RecyclerView.ViewHolder holder = null;
+        if (childView != null) {
+            holder = rv.getChildViewHolder(childView);
+        }
+        return holder;
     }
 
     private boolean isAfterMax(WeekView.Day day) {

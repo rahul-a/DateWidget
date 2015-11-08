@@ -9,4 +9,5 @@
     <dimen name="mdtp_month_list_item_header_height">24dp</dimen>
     <dimen name="mdtp_month_row_height">48dp</dimen>
     <dimen name="day_separator">8dp</dimen>
+    <dimen name="scroll_offset">100dp</dimen>
 </resources>
