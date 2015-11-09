@@ -7,5 +7,9 @@
         <attr name="day_text_color" format="color" />
         <attr name="week_label_color" format="color" />
         <attr name="selected_circle_color" format="color" />
+        <attr name="date_size" format="dimension" />
+        <attr name="selected_circle_size" format="dimension" />
+        <attr name="day_label_size" format="dimension" />
+        <attr name="day_separator_width" format="dimension" />
     </declare-styleable>
 </resources>

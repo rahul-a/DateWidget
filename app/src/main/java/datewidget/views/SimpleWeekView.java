@@ -30,7 +30,7 @@ public class SimpleWeekView extends WeekView {
         WeekView.Day selectedDay = mController.getSelectedDay();
 
         if (selectedDay != null && selectedDay.equals(day)) {
-            canvas.drawCircle(x , y - (MINI_DAY_NUMBER_TEXT_SIZE / 3), DAY_SELECTED_CIRCLE_SIZE,
+            canvas.drawCircle(x , y - (mDateTextSize / 3), mSelectedDayCircleSize,
                     mSelectedCirclePaint);
         }
 

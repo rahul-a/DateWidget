@@ -10,11 +10,13 @@ import android.view.VelocityTracker;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 
 import com.sample.datewidget.R;
 import com.sample.datewidget.fragments.DatePickerFragment;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeConstants;
 
 import java.util.Calendar;
 import java.util.HashMap;
@@ -109,6 +111,10 @@ public class MainActivity extends AppCompatActivity {
         public void onDayOfMonthSelected(View view, WeekView.Day day) {
             Timber.v("controller:: Day tapped: %s", day);
             mSelectedDay = day;
+            TextView daySelectedText = (TextView) findViewById(R.id.dummy_text);
+            if (daySelectedText != null) {
+                daySelectedText.setText(String.format("%s %s, %s", mSelectedDay.getMonthName(), mSelectedDay.getDate(), mSelectedDay.getYear()));
+            }
         }
 
 
@@ -216,6 +222,8 @@ public class MainActivity extends AppCompatActivity {
         }
 
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+        TextView daySelectedText = (TextView) findViewById(R.id.dummy_text);
+
         if (recyclerView != null) {
             recyclerView.setOnTouchListener(new View.OnTouchListener() {
                 @Override
