@@ -122,6 +122,7 @@ public abstract class WeekView extends View {
     protected int mTodayNumberColor;
     protected int mHighlightedDayTextColor;
     protected int mDisabledDayTextColor;
+    protected Day mWeekStartDay = null;
 
     protected Day[] mDays = new Day[mNumDays];
 
@@ -212,6 +213,7 @@ public abstract class WeekView extends View {
         DateTime startDate = new DateTime(currentDateTime.getYear(), currentDateTime.getMonthOfYear(),
                 currentDateTime.dayOfWeek().withMinimumValue().getDayOfMonth(), 0, 0, 0);
 
+        mWeekStartDay = new Day(startDate);
         DateTime endDate = startDate.plusWeeks(1);
 
         int i = 0;

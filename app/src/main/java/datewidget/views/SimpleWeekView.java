@@ -48,6 +48,8 @@ public class SimpleWeekView extends WeekView {
             mMonthNumPaint.setColor(mSelectedDayTextColor);
         } else if (mHasToday && mToday == day.getDate()) {
             mMonthNumPaint.setColor(mTodayNumberColor);
+        } else if (mWeekStartDay != null && mWeekStartDay.equals(day)) {
+            mMonthNumPaint.setColor(mTodayNumberColor);
         } else {
             mMonthNumPaint.setColor(isHighlighted(day) ? mHighlightedDayTextColor : mDayTextColor);
         }
