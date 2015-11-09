@@ -1,5 +1,7 @@
 package datewidget.controllers;
 
+import android.view.View;
+
 import com.sample.datewidget.fragments.DatePickerFragment;
 
 import java.util.Calendar;
@@ -12,7 +14,7 @@ import datewidget.views.WeekView;
 public interface DatePickerController {
     void onYearSelected(int year);
 
-    void onDayOfMonthSelected(WeekView.Day day);
+    void onDayOfMonthSelected(View view, WeekView.Day day);
 
     void registerOnDateChangedListener(DatePickerFragment.OnDateChangedListener listener);
 
@@ -39,4 +41,6 @@ public interface DatePickerController {
     void tryVibrate();
 
     boolean isSelectable(WeekView.Day day);
+
+    WeekView.Day getToday();
 }

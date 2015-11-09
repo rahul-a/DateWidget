@@ -111,8 +111,6 @@ public abstract class WeekView extends View {
     protected int mNumDays = DEFAULT_NUM_DAYS;
     // The number of days + a spot for week number if it is displayed
     protected int mNumCells = mNumDays;
-    // Optional listener for handling day click actions
-    protected OnDayClickListener mOnDayClickListener;
 
     protected Paint mMonthDayLabelPaint;
     protected Paint mSelectedCirclePaint;
@@ -126,13 +124,6 @@ public abstract class WeekView extends View {
     protected int mDisabledDayTextColor;
 
     protected Day[] mDays = new Day[mNumDays];
-
-    /**
-     * Handles callbacks when the user clicks on a time object.
-     */
-    public interface OnDayClickListener {
-        void onDayClick(WeekView view, Day day);
-    }
 
     public WeekView(Context context) {
         this(context, null, null);
@@ -289,7 +280,7 @@ public abstract class WeekView extends View {
 
     /**
      * Called when the user clicks on a day. Handles callbacks to the
-     * {@link OnDayClickListener} if one is set.
+     * {@link DatePickerController#onDayOfMonthSelected(View, Day)} if one is set.
      * <p/>
      * If the day is out of the range set by minDate and/or maxDate, this is a no-op.
      *
@@ -304,8 +295,8 @@ public abstract class WeekView extends View {
         mSelectedDay = day;
         invalidate();
 
-        if (mOnDayClickListener != null) {
-            mOnDayClickListener.onDayClick(this, day);
+        if (mController != null) {
+            mController.onDayOfMonthSelected(this, day);
         }
     }
 
@@ -393,7 +384,7 @@ public abstract class WeekView extends View {
         getDayNumbers();
         mNumCells = 7;
 
-        Day currentDay = new Day(mToday, mMonth, mYear);
+        Day currentDay = mController == null ? new Day(mToday, mMonth, mYear) : mController.getToday();
 
         for (int i = 0; i < mNumCells; i++) {
             Day tempDay = mDays[i];
@@ -448,7 +439,7 @@ public abstract class WeekView extends View {
 
         for (int i = 0; i < mNumDays; i++) {
             int x = (2 * i + 1) * dayWidthHalf + mEdgePadding;
-            String weekString = mDays[i].getDay().substring(0, 3);
+            String weekString = mDays[i].getDay().toUpperCase().substring(0, 3);
             canvas.drawText(weekString, x, y, mMonthDayLabelPaint);
         }
     }
@@ -525,10 +516,6 @@ public abstract class WeekView extends View {
 
     public void setSelectedDay(Day selectedDay) {
         mSelectedDay = selectedDay;
-    }
-
-    public void setOnDayClickListener(OnDayClickListener listener) {
-        mOnDayClickListener = listener;
     }
 
     public void setController(DatePickerController controller) {

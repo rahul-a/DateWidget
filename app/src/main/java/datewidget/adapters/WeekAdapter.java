@@ -25,18 +25,6 @@ public class WeekAdapter extends RecyclerView.Adapter<WeekViewHolder> {
     private DatePickerController mController;
     private DateTime mDateTime;
 
-    private WeekView.OnDayClickListener mOnWeekDayClickListener = new WeekView.OnDayClickListener() {
-        @Override
-        public void onDayClick(WeekView view, WeekView.Day day) {
-            if (day != null) {
-                Timber.v("Day tapped: %s", day);
-                if (mController != null) {
-                    mController.onDayOfMonthSelected(day);
-                }
-            }
-        }
-    };
-
     public WeekAdapter(DatePickerController controller) {
         mController = controller;
         mDateTime = new DateTime();
@@ -57,7 +45,6 @@ public class WeekAdapter extends RecyclerView.Adapter<WeekViewHolder> {
         WeekView weekView = holder.getWeekView();
         weekView.setController(mController);
         weekView.setClickable(true);
-        weekView.setOnDayClickListener(mOnWeekDayClickListener);
 
         HashMap<String, Integer> drawingParams;
         if (tag == null) {

@@ -26,7 +26,7 @@ import datewidget.views.SimpleWeekView;
 import datewidget.views.WeekView;
 import timber.log.Timber;
 
-public class MainActivity extends AppCompatActivity implements WeekView.OnDayClickListener {
+public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -106,14 +106,15 @@ public class MainActivity extends AppCompatActivity implements WeekView.OnDayCli
         }
 
         @Override
-        public void onDayOfMonthSelected(WeekView.Day day) {
+        public void onDayOfMonthSelected(View view, WeekView.Day day) {
+            Timber.v("controller:: Day tapped: %s", day);
             mSelectedDay = day;
         }
 
 
         @Override
         public WeekView.Day getSelectedDay() {
-            return new WeekView.Day(new DateTime());
+            return mSelectedDay;
         }
 
         @Override
@@ -144,6 +145,11 @@ public class MainActivity extends AppCompatActivity implements WeekView.OnDayCli
                 }
             }
             return false;
+        }
+
+        @Override
+        public WeekView.Day getToday() {
+            return new WeekView.Day(new DateTime());
         }
     };
 
@@ -177,7 +183,6 @@ public class MainActivity extends AppCompatActivity implements WeekView.OnDayCli
         setContentView(R.layout.activity_recycler_week);
         mAccentColor = Utils.getAccentColorFromThemeIfAvailable(this);
         WeekView weekView = new SimpleWeekView(this, null, mDatePickerController);
-        weekView.setOnDayClickListener(this);
         WeekView.Day calendarDay = new WeekView.Day();
 
         final int position = (calendarDay.getYear() - mDatePickerController.getMinYear())
@@ -188,7 +193,7 @@ public class MainActivity extends AppCompatActivity implements WeekView.OnDayCli
 
         mSelectedDay = mDatePickerController.getSelectedDay();
 
-        Timber.v("Selected Day --> " + mSelectedDay.getDate());
+        Timber.v("Selected Day --> " + (mSelectedDay == null ? null : mSelectedDay.getDate()));
 
         FrameLayout frameLayout = (FrameLayout) findViewById(R.id.date_frame);
         if (frameLayout != null) {
@@ -481,12 +486,4 @@ public class MainActivity extends AppCompatActivity implements WeekView.OnDayCli
                 calendar.get(Calendar.DAY_OF_MONTH)
         );
     }*/
-
-    @Override
-    public void onDayClick(WeekView view, WeekView.Day day) {
-        if (day != null) {
-            Timber.v("Day tapped: %s", day);
-            mDatePickerController.onDayOfMonthSelected(day);
-        }
-    }
 }
