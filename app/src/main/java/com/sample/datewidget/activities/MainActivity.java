@@ -267,7 +267,7 @@ public class MainActivity extends AppCompatActivity {
                         case MotionEvent.ACTION_UP:
                         case MotionEvent.ACTION_CANCEL:
                             onUpOrCancel(rv, e);
-                            break;
+                            return;
                     }
                     RecyclerView.ViewHolder holder = getViewHolderUnder(rv, e.getX(), e.getY());
                     Timber.v("Touched item %s: ", holder == null ? -1 : holder.getAdapterPosition());
@@ -305,21 +305,18 @@ public class MainActivity extends AppCompatActivity {
         }
 
         final int touchX = (int) (e.getX() + 0.5f);
-        final int touchY = (int) (e.getY() + 0.5f);
-
-        final View view = holder.itemView;
-        final int translateX = (int) (ViewCompat.getTranslationX(view) + 0.5f);
-        final int translateY = (int) (ViewCompat.getTranslationY(view) + 0.5f);
 
         mInitialTouchX = touchX;
         mSwipingHolder = holder;
         mVelocityTracker.clear();
+        mVelocityTracker.addMovement(e);
     }
 
     private void onMove(RecyclerView rv, MotionEvent e) {
         Timber.v("Enter:: onMove");
-        int scrollX = (int) (e.getX() - mLastTouchX);
-        mLastTouchX = (int) (e.getX() + 0.5f);
+        int x = (int) (e.getX() + 0.5f);
+        int scrollX = (int) (x - mLastTouchX);
+        mLastTouchX = (int) (x + 0.5f);
         mVelocityTracker.addMovement(e);
 
         final float distance = (mLastTouchX - mInitialTouchX);
@@ -348,18 +345,18 @@ public class MainActivity extends AppCompatActivity {
         int itemPosition = holder.getAdapterPosition();
         final View itemView = holder.itemView;
         final int viewSize = itemView.getWidth();
-        final float distance = (mLastTouchX - mInitialTouchX);
-        final float absDistance = Math.abs(distance);
+        float distance = (mLastTouchX - mInitialTouchX);
+        float absDistance = Math.abs(distance);
 
         mVelocityTracker.computeCurrentVelocity(1000, mMaxFlingVelocity); // 1000: pixels per second
 
-        final float velocity = mVelocityTracker.getXVelocity();
-        final float absVelocity = Math.abs(velocity);
+        float velocity = mVelocityTracker.getXVelocity();
+        float absVelocity = Math.abs(velocity);
 
-        if ((absDistance > (mTouchSlop * MIN_DISTANCE_TOUCH_SLOP_MUL)) &&
+        if ((absDistance > (mTouchSlop)) &&
                 ((distance * velocity) > 0.0f) &&
                 (absVelocity <= mMaxFlingVelocity) &&
-                ((absVelocity >= mMinFlingVelocity)) && absDistance > viewSize / 3) {
+                ((absVelocity >= mMinFlingVelocity)) && absDistance > viewSize / 2) {
             if (distance < 0) {
                 if (itemPosition < rv.getAdapter().getItemCount() - 1) {
                     rv.smoothScrollToPosition(itemPosition + 1);
@@ -382,7 +379,7 @@ public class MainActivity extends AppCompatActivity {
             currentPosition = itemPosition;
             rv.smoothScrollToPosition(itemPosition);
         }
-
+        mVelocityTracker.clear();
         mSwipingHolder = null;
     }
 

@@ -12,22 +12,15 @@ import android.util.DisplayMetrics;
  */
 public class CustomLayoutManager extends LinearLayoutManager {
     private static final float MILLISECONDS_PER_INCH = 200f;
-    private Context mContext;
+    private LinearSmoothScroller mSmoothScroller;
 
     public CustomLayoutManager(Context context) {
         super(context);
-        mContext = context;
-    }
-
-    @Override
-    public void smoothScrollToPosition(RecyclerView recyclerView, RecyclerView.State state, final int position) {
-
-        LinearSmoothScroller smoothScroller = new LinearSmoothScroller(mContext) {
-
+        mSmoothScroller = new LinearSmoothScroller(context) {
             //This controls the direction in which smoothScroll looks for your view
             @Override
             public PointF computeScrollVectorForPosition(int targetPosition) {
-                return computeScrollVectorForPosition(targetPosition);
+                return CustomLayoutManager.this.computeScrollVectorForPosition(targetPosition);
             }
 
             //This returns the milliseconds it takes to scroll one pixel.
@@ -36,8 +29,12 @@ public class CustomLayoutManager extends LinearLayoutManager {
                 return MILLISECONDS_PER_INCH / displayMetrics.densityDpi;
             }
         };
+    }
 
-        smoothScroller.setTargetPosition(position);
-        startSmoothScroll(smoothScroller);
+    @Override
+    public void smoothScrollToPosition(RecyclerView recyclerView, RecyclerView.State state, final int position) {
+        computeScrollVectorForPosition(position);
+        mSmoothScroller.setTargetPosition(position);
+        startSmoothScroll(mSmoothScroller);
     }
 }

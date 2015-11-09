@@ -2,6 +2,8 @@ package com.sample.datewidget;
 
 import android.app.Application;
 
+import com.squareup.leakcanary.LeakCanary;
+
 import net.danlew.android.joda.JodaTimeAndroid;
 
 import timber.log.Timber;
@@ -18,5 +20,6 @@ public class MainApplication extends Application {
 
         // Important to initialize to escape Resource not found: "org/joda/time/tz/data/ZoneInfoMap" IOException
         JodaTimeAndroid.init(getApplicationContext());
+        LeakCanary.install(this);
     }
 }

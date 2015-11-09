@@ -24,22 +24,26 @@ public class WeekAdapter extends RecyclerView.Adapter<WeekViewHolder> {
     private static final String TAG = WeekAdapter.class.getSimpleName();
     private DatePickerController mController;
     private DateTime mDateTime;
+    private static int sHolderCount = 0;
+    int mWeekCount;
 
     public WeekAdapter(DatePickerController controller) {
         mController = controller;
         mDateTime = new DateTime();
+        mWeekCount = mDateTime.weekOfWeekyear().withMaximumValue().getWeekOfWeekyear();
     }
 
     @Override
     public WeekViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.week_view_layout, parent, false);
         view.setLayoutParams(new RecyclerView.LayoutParams(parent.getMeasuredWidth(), RecyclerView.LayoutParams.MATCH_PARENT));
+        sHolderCount++;
         return new WeekViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(WeekViewHolder holder, int position) {
-        Timber.v("BindView for Position: %s", position);
+        Timber.v("BindView for Position: %s, count %s", position, sHolderCount);
 
         Object tag = holder.itemView.getTag();
         WeekView weekView = holder.getWeekView();
@@ -55,7 +59,7 @@ public class WeekAdapter extends RecyclerView.Adapter<WeekViewHolder> {
             drawingParams.clear();
         }
 
-        DateTime dateTime = mDateTime.withWeekyear(mDateTime.getYear()).withWeekOfWeekyear(position + 1).withDayOfWeek(1);;
+        DateTime dateTime = mDateTime.withWeekyear(mDateTime.getYear()).withWeekOfWeekyear(position + 1).withDayOfWeek(1);
         int year = dateTime.getYear();
         int month = dateTime.dayOfWeek().withMinimumValue().getMonthOfYear();
         int day = dateTime.dayOfWeek().withMinimumValue().getDayOfMonth();
@@ -77,7 +81,6 @@ public class WeekAdapter extends RecyclerView.Adapter<WeekViewHolder> {
 
     @Override
     public int getItemCount() {
-        int weekCount = mDateTime.weekOfWeekyear().withMaximumValue().getWeekOfWeekyear();
-        return weekCount;
+        return mWeekCount;
     }
 }

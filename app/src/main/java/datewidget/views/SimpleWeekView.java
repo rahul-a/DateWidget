@@ -27,7 +27,7 @@ public class SimpleWeekView extends WeekView {
     @Override
     public void drawWeekDate(Canvas canvas, Day day,
                              int x, int y, int startX, int stopX, int startY, int stopY) {
-        WeekView.Day selectedDay = mController.getSelectedDay();
+        WeekView.Day selectedDay = mController == null ? null : mController.getSelectedDay();
 
         if (selectedDay != null && selectedDay.equals(day)) {
             canvas.drawCircle(x , y - (mDateTextSize / 3), mSelectedDayCircleSize,
