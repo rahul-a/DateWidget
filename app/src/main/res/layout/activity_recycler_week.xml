@@ -6,7 +6,7 @@
     android:padding="@dimen/activity_horizontal_margin"
     tools:context=".MainActivity">
 
-    <android.support.v7.widget.RecyclerView
+    <com.sample.datewidget.activities.DateRecycler
         android:id="@+id/recycler_view"
         android:scrollbars="none"
         android:layout_above="@+id/dummy_text"
