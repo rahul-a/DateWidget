@@ -6,6 +6,9 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.LinearSmoothScroller;
 import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
+import android.view.View;
+
+import java.lang.reflect.Field;
 
 /**
  * Created by priyabratapatnaik on 09/11/15.
@@ -17,6 +20,7 @@ public class CustomLayoutManager extends LinearLayoutManager {
     public CustomLayoutManager(Context context) {
         super(context);
         mSmoothScroller = new DateSmoothScroller(context);
+
     }
 
     @Override
@@ -32,6 +36,7 @@ public class CustomLayoutManager extends LinearLayoutManager {
     }
 
     public class DateSmoothScroller extends LinearSmoothScroller {
+        Field mConsecutiveUpdates;
 
         public DateSmoothScroller(Context context) {
             super(context);
@@ -52,6 +57,24 @@ public class CustomLayoutManager extends LinearLayoutManager {
         @Override
         protected int getHorizontalSnapPreference() {
             return SNAP_TO_START;
+        }
+
+        @Override
+        protected void onTargetFound(View targetView, RecyclerView.State state, Action action) {
+            super.onTargetFound(targetView, state, action);
+
+            // Remove annoying tips
+            try {
+                if (mConsecutiveUpdates == null) {
+                    mConsecutiveUpdates = Action.class.getDeclaredField("consecutiveUpdates");
+                    mConsecutiveUpdates.setAccessible(true); // Allows access to private fields
+                }
+                mConsecutiveUpdates.setInt(action, 0);
+            } catch (NoSuchFieldException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
         }
     }
  }

@@ -32,6 +32,8 @@ public class RecyclerViewUtils {
     private int mItemCenterPositionX;
     private int mItemCenterPositionY;
 
+    private boolean mAllowFastFling = false;
+
     private OnPageChangedListener mOnPageChangedListener;
 
     public RecyclerViewUtils(RecyclerView recyclerView) {
@@ -43,8 +45,8 @@ public class RecyclerViewUtils {
     private void initSlidingThreshold() {
         int itemWidth = (mRecyclerView.getWidth() - mRecyclerView.getPaddingLeft() - mRecyclerView.getPaddingRight()) / mVisibleChildCount;
         int itemHeight = (mRecyclerView.getWidth() - mRecyclerView.getPaddingLeft() - mRecyclerView.getPaddingRight()) / mVisibleChildCount;
-        mHorizontalSlidingThreshold = mVisibleChildCount == 1 ? itemWidth * mSlidingThreshold : itemWidth * 0.5f;
-        mVerticalSlidingThreshold = mVisibleChildCount == 1 ? itemHeight * mSlidingThreshold : itemHeight * 0.5f;
+        mHorizontalSlidingThreshold = mVisibleChildCount == 1 ? itemWidth * mSlidingThreshold : itemWidth * 0.3f;
+        mVerticalSlidingThreshold = mVisibleChildCount == 1 ? itemHeight * mSlidingThreshold : itemHeight * 0.3f;
     }
 
     private void initCenterParentPosition() {
@@ -130,10 +132,18 @@ public class RecyclerViewUtils {
         switch (mOrientation) {
             case LinearLayoutManager.HORIZONTAL:
                 int childWidth = (mRecyclerView.getWidth() - mRecyclerView.getPaddingLeft() - mRecyclerView.getPaddingRight()) / mVisibleChildCount;
-                return velocityX / childWidth;
+                if (mAllowFastFling) {
+                    return velocityX / childWidth;
+                } else {
+                    return velocityX / Math.abs(velocityX);
+                }
             case LinearLayoutManager.VERTICAL:
                 int childHeight = (mRecyclerView.getHeight() - mRecyclerView.getPaddingTop() - mRecyclerView.getPaddingBottom()) / mVisibleChildCount;
-                return velocityY / childHeight;
+                if (mAllowFastFling) {
+                    return velocityX / childHeight;
+                } else {
+                    return velocityX / Math.abs(velocityX);
+                }
             default:
                 return 0;
         }
@@ -151,5 +161,9 @@ public class RecyclerViewUtils {
 
     public interface OnPageChangedListener {
         void onPageChanged(int currentPosition);
+    }
+
+    public void setFastFling(boolean allowFastFling) {
+        mAllowFastFling = allowFastFling;
     }
 }

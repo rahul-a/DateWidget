@@ -1,11 +1,23 @@
 package com.sample.datewidget.activities;
 
 import android.content.Context;
+import android.content.res.Resources;
+import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
+
+import com.sample.datewidget.R;
+
+import org.joda.time.Days;
+
+import datewidget.adapters.WeekAdapter;
+import datewidget.holders.WeekViewHolder;
+import datewidget.views.WeekView;
+import timber.log.Timber;
 
 /**
  * Created by priyabratapatnaik on 10/11/15.
@@ -26,6 +38,8 @@ public class DateRecycler extends RecyclerView {
 
     private RecyclerViewUtils.OnPageChangedListener mOnPageChangedListener;
 
+    private Paint mMonthDayLabelPaint = new Paint();
+
     public DateRecycler(Context context) {
         super(context);
         init(context);
@@ -43,6 +57,13 @@ public class DateRecycler extends RecyclerView {
         setLayoutManager(layoutManager);
         mFlingFriction = (1.0f - DEFAULT_FLING_FRICTION);
         setDescendantFocusability(FOCUS_AFTER_DESCENDANTS);
+
+        mMonthDayLabelPaint.setAntiAlias(true);
+        mMonthDayLabelPaint.setTextSize(context.getResources().getDimensionPixelSize(R.dimen.mdtp_month_day_label_text_size));
+        mMonthDayLabelPaint.setColor(context.getResources().getColor(R.color.mdtp_red));
+        mMonthDayLabelPaint.setStyle(Paint.Style.FILL);
+        mMonthDayLabelPaint.setTextAlign(Paint.Align.CENTER);
+        mMonthDayLabelPaint.setFakeBoldText(true);
     }
 
     @Override
@@ -124,5 +145,28 @@ public class DateRecycler extends RecyclerView {
 
     public void setOnPageChangedListener(RecyclerViewUtils.OnPageChangedListener listener) {
         mOnPageChangedListener = listener;
+    }
+
+    public void scrollToPresent() {
+        scrollToDay(new WeekView.Day());
+    }
+
+    public void scrollToDay(final WeekView.Day day) {
+        if (day == null) {
+            return;
+        }
+        final int position = day.toDateTime().getWeekOfWeekyear() - 1;
+        scrollToPosition(position);
+        post(new Runnable() {
+            @Override
+            public void run() {
+                WeekViewHolder holder = (WeekViewHolder) findViewHolderForAdapterPosition(position);
+                if (holder != null) {
+                    holder.getWeekView().onDayClick(day);
+                } else {
+                    Timber.v("holder is null");
+                }
+            }
+        });
     }
 }

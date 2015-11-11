@@ -12,7 +12,6 @@ import datewidget.views.WeekView;
  * Created by priyabratapatnaik on 03/11/15.
  */
 public interface DatePickerController {
-    void onYearSelected(int year);
 
     void onDayOfMonthSelected(View view, WeekView.Day day);
 
@@ -28,9 +27,7 @@ public interface DatePickerController {
 
     WeekView.Day[] getHighlightedDays();
 
-    Calendar[] getSelectableDays();
-
-    int getFirstDayOfWeek();
+    WeekView.Day[] getSelectableDays();
 
     int getMinYear();
 

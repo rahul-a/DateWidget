@@ -121,7 +121,6 @@ public abstract class WeekView extends View {
     protected int mTodayNumberColor;
     protected int mHighlightedDayTextColor;
     protected int mDisabledDayTextColor;
-    protected Day mWeekStartDay = null;
 
     protected Day[] mDays = new Day[mNumDays];
 
@@ -185,6 +184,19 @@ public abstract class WeekView extends View {
         // Sets up any standard paints that will be used
         initView();
         getDayNumbers();
+
+        Day currentDay = mController == null ? new Day(mToday, mMonth, mYear) : mController.getToday();
+
+        findToday();
+
+        if (mController != null) {
+            Day selectedDay = mController.getSelectedDay();
+            if (mController.isSelectable(selectedDay)) {
+                mSelectedDay = selectedDay;
+            } else {
+                mSelectedDay = null;
+            }
+        }
     }
 
     /**
@@ -212,18 +224,17 @@ public abstract class WeekView extends View {
         }
     }
 
+    private DateTime mStartDate;
+
     private int[] getDayNumbers() {
         int[] days = new int[7];
-        DateTime currentDateTime;
-        if (mToday == 0 || mMonth == 0 || mYear == 0) {
-            currentDateTime = new DateTime();
+        DateTime startDate;
+        if (mStartDate != null) {
+            startDate = mStartDate;
         } else {
-            currentDateTime = new DateTime(mYear, mMonth, mToday, 0, 0, 0);
+            startDate = new DateTime();
         }
-        DateTime startDate = new DateTime(currentDateTime.getYear(), currentDateTime.getMonthOfYear(),
-                currentDateTime.dayOfWeek().withMinimumValue().getDayOfMonth(), 0, 0, 0);
 
-        mWeekStartDay = new Day(startDate);
         DateTime endDate = startDate.plusWeeks(1);
 
         int i = 0;
@@ -255,7 +266,7 @@ public abstract class WeekView extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        drawWeekDayLabels(canvas);
+        // drawWeekDayLabels(canvas);
         drawWeek(canvas);
     }
 
@@ -298,7 +309,7 @@ public abstract class WeekView extends View {
      *
      * @param day The day that was clicked
      */
-    private void onDayClick(Day day) {
+    public void onDayClick(Day day) {
         // If the min / max date are set, only process the click if it's a valid selection.
         if (mController.isOutOfRange(day)) {
             return;
@@ -307,7 +318,7 @@ public abstract class WeekView extends View {
         mSelectedDay = day;
         invalidate();
 
-        if (mController != null) {
+        if (mController != null && isVisibleInWeek(day)) {
             mController.onDayOfMonthSelected(this, day);
         }
     }
@@ -355,59 +366,6 @@ public abstract class WeekView extends View {
     }
 
     /**
-     * Sets all the parameters for displaying this week. The only required
-     * parameter is the week number. Other parameters have a default value and
-     * will only update if a new value is included, except for focus month,
-     * which will always default to no focus month if no value is passed in. See
-     * {@link #VIEW_PARAMS_HEIGHT} for more info on parameters.
-     *
-     * @param params A map of the new parameters, see
-     *            {@link #VIEW_PARAMS_HEIGHT}
-     */
-    public void setMonthParams(HashMap<String, Integer> params) {
-        if (!params.containsKey(VIEW_PARAMS_MONTH) && !params.containsKey(VIEW_PARAMS_YEAR)) {
-            throw new InvalidParameterException("You must specify month and year for this view");
-        }
-        setTag(params);
-        // We keep the current value for any params not present
-        if (params.containsKey(VIEW_PARAMS_HEIGHT)) {
-            mDayNumFrameHeight = params.get(VIEW_PARAMS_HEIGHT);
-            if (mDayNumFrameHeight < mMinHeight) {
-                mDayNumFrameHeight = mMinHeight;
-            }
-        }
-
-        // Allocate space for caching the day numbers and focus values
-        mMonth = params.containsKey(VIEW_PARAMS_MONTH) ? params.get(VIEW_PARAMS_MONTH) : 0;
-        mYear = params.containsKey(VIEW_PARAMS_YEAR) ? params.get(VIEW_PARAMS_YEAR) : 0;
-        mToday = params.containsKey(VIEW_PARAMS_DATE)? params.get(VIEW_PARAMS_DATE) : 0;
-
-        if (mController != null) {
-            Day selectedDay = mController.getSelectedDay();
-            if (mController.isSelectable(selectedDay)) {
-                mSelectedDay = selectedDay;
-            } else {
-                mSelectedDay = null;
-            }
-        }
-
-        mHasToday = false;
-
-        getDayNumbers();
-        mNumCells = 7;
-
-        Day currentDay = mController == null ? new Day(mToday, mMonth, mYear) : mController.getToday();
-
-        for (int i = 0; i < mNumCells; i++) {
-            Day tempDay = mDays[i];
-            if (tempDay.equals(currentDay)) {
-                mHasToday = true;
-                Timber.v("Found today: %s", mToday);
-            }
-        }
-    }
-
-    /**
      * @param day
      * @return true if the given date should be highlighted
      */
@@ -433,7 +391,6 @@ public abstract class WeekView extends View {
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         mWidth = w;
-        Timber.v("Width: #onSizeChanged --> %s", mWidth);
     }
 
     /**
@@ -481,7 +438,7 @@ public abstract class WeekView extends View {
             DateTime dateTime = new DateTime();
             year = dateTime.getYear();
             month = dateTime.getMonthOfYear();
-            monthName = dateTime.monthOfYear().getName();
+            monthName = dateTime.monthOfYear().getAsText();
             day = dateTime.dayOfWeek().getAsShortText();
             date = dateTime.getDayOfMonth();
         }
@@ -504,6 +461,14 @@ public abstract class WeekView extends View {
 
         public String getMonthName() {
             return monthName;
+        }
+
+        public DateTime toDateTime() {
+            if (date == 0 || month == 0 || year == 0) {
+                return new DateTime();
+            }
+
+            return new DateTime(year, month, date, 0, 0, 0);
         }
 
         @Override
@@ -541,9 +506,40 @@ public abstract class WeekView extends View {
         mController = controller;
     }
 
+    public void setStartDate(DateTime dateTime) {
+        mStartDate = dateTime;
+        getDayNumbers();
+        findToday();
+        invalidate();
+    }
+
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         mWidth = right - left;
-        Timber.v("Width:#onLayout: %s", mWidth);
+    }
+
+    private boolean isVisibleInWeek(Day day) {
+        if (day == null || mStartDate == null) {
+            return false;
+        }
+
+        DateTime dateTime = day.toDateTime().withTimeAtStartOfDay();
+        if (dateTime.isAfter(mStartDate.withTimeAtStartOfDay().minusDays(1)) && dateTime.isBefore(mStartDate.withTimeAtStartOfDay().plusWeeks(1))) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private void findToday() {
+        mHasToday = false;
+        Day currentDay = mController == null ? new Day() : mController.getToday();
+        for (int i = 0; i < mDays.length; i++) {
+            Day tempDay = mDays[i];
+            if (tempDay.equals(currentDay)) {
+                mHasToday = true;
+                mToday = currentDay.getDate();
+            }
+        }
     }
 }

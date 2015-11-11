@@ -6,6 +6,7 @@ import android.graphics.Typeface;
 import android.util.AttributeSet;
 
 import datewidget.controllers.DatePickerController;
+import timber.log.Timber;
 
 /**
  * Created by priyabratapatnaik on 03/11/15.
@@ -47,8 +48,6 @@ public class SimpleWeekView extends WeekView {
             mMonthNumPaint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
             mMonthNumPaint.setColor(mSelectedDayTextColor);
         } else if (mHasToday && mToday == day.getDate()) {
-            mMonthNumPaint.setColor(mTodayNumberColor);
-        } else if (mWeekStartDay != null && mWeekStartDay.equals(day)) {
             mMonthNumPaint.setColor(mTodayNumberColor);
         } else {
             mMonthNumPaint.setColor(isHighlighted(day) ? mHighlightedDayTextColor : mDayTextColor);
