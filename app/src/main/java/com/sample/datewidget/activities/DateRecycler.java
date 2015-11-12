@@ -152,10 +152,14 @@ public class DateRecycler extends RecyclerView {
     }
 
     public void scrollToDay(final WeekView.Day day) {
+        if (getAdapter() == null) {
+            throw new IllegalStateException("Must call setAdapter() before scrolling to a day");
+        }
         if (day == null) {
             return;
         }
         final int position = day.toDateTime().getWeekOfWeekyear() - 1;
+        if (position >= 0 && position < getAdapter().getItemCount())
         scrollToPosition(position);
         post(new Runnable() {
             @Override
@@ -163,8 +167,6 @@ public class DateRecycler extends RecyclerView {
                 WeekViewHolder holder = (WeekViewHolder) findViewHolderForAdapterPosition(position);
                 if (holder != null) {
                     holder.getWeekView().onDayClick(day);
-                } else {
-                    Timber.v("holder is null");
                 }
             }
         });

@@ -137,6 +137,11 @@ public class MainActivity extends AppCompatActivity {
         public WeekView.Day getToday() {
             return new WeekView.Day(new DateTime());
         }
+
+        @Override
+        public WeekView.Day getStartDate() {
+            return new WeekView.Day(new DateTime(2014, 8, 14, 0, 0, 0).weekOfWeekyear().withMinimumValue());
+        }
     };
 
     private static final int DEFAULT_START_YEAR = 1900;
@@ -176,6 +181,7 @@ public class MainActivity extends AppCompatActivity {
             recyclerView.setHasFixedSize(true);
             recyclerView.setAdapter(weekAdapter);
             recyclerView.scrollToPresent();
+            Timber.v("Item count is --> %s", recyclerView.getAdapter().getItemCount());
             recyclerView.addItemDecoration(new WeekDayLabelDecoration(this, RecyclerView.VERTICAL));
             recyclerView.setOnPageChangedListener(new RecyclerViewUtils.OnPageChangedListener() {
                 @Override
@@ -183,6 +189,7 @@ public class MainActivity extends AppCompatActivity {
                     Timber.v("Position showing: %s", currentPosition);
                 }
             });
+            recyclerView.scrollToPosition(103);
         }
     }
 

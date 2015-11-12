@@ -40,4 +40,6 @@ public interface DatePickerController {
     boolean isSelectable(WeekView.Day day);
 
     WeekView.Day getToday();
+
+    WeekView.Day getStartDate();
 }
