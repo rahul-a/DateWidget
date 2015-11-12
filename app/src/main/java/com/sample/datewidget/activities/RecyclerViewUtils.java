@@ -34,8 +34,6 @@ public class RecyclerViewUtils {
 
     private boolean mAllowFastFling = false;
 
-    private OnPageChangedListener mOnPageChangedListener;
-
     public RecyclerViewUtils(RecyclerView recyclerView) {
         mSlidingThreshold = DEFAULT_SLIDING_THRESHOLD;
         mVisibleChildCount = DEFAULT_VISIBLE_CHILD_COUNT;
@@ -157,10 +155,6 @@ public class RecyclerViewUtils {
     public boolean isRightScrollTriggered(float distance) {
         return mRecyclerView.canScrollHorizontally(mOrientation)
                 && distance >= 0 && Math.abs(distance) >= mHorizontalSlidingThreshold;
-    }
-
-    public interface OnPageChangedListener {
-        void onPageChanged(int currentPosition);
     }
 
     public void setFastFling(boolean allowFastFling) {

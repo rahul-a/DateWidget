@@ -1,23 +1,18 @@
 package com.sample.datewidget.activities;
 
 import android.content.Context;
-import android.content.res.Resources;
-import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
-import android.view.MotionEvent;
 import android.view.View;
 
 import com.sample.datewidget.R;
 
-import org.joda.time.Days;
-
 import datewidget.adapters.WeekAdapter;
 import datewidget.holders.WeekViewHolder;
+import datewidget.views.DateView;
 import datewidget.views.WeekView;
-import timber.log.Timber;
 
 /**
  * Created by priyabratapatnaik on 10/11/15.
@@ -36,7 +31,7 @@ public class DateRecycler extends RecyclerView {
     private RecyclerViewUtils mRecyclerViewUtils;
     private boolean mHasUpdatedSnappyRecyclerViewHelper;
 
-    private RecyclerViewUtils.OnPageChangedListener mOnPageChangedListener;
+    private DateView.OnWeekChangedListener mOnWeekChangedListener;
 
     private Paint mMonthDayLabelPaint = new Paint();
 
@@ -86,8 +81,8 @@ public class DateRecycler extends RecyclerView {
 
     @Override
     public void smoothScrollToPosition(int position) {
-        if (mOnPageChangedListener != null && mCurrentPosition != NO_POSITION && mSmoothScrollTargetPosition != position) {
-            mOnPageChangedListener.onPageChanged(position);
+        if (mOnWeekChangedListener != null && mCurrentPosition != NO_POSITION && mSmoothScrollTargetPosition != position) {
+            mOnWeekChangedListener.onWeekChanged(position);
         }
         mCurrentPosition = mSmoothScrollTargetPosition = position;
         super.smoothScrollToPosition(position);
@@ -143,8 +138,8 @@ public class DateRecycler extends RecyclerView {
         }
     }
 
-    public void setOnPageChangedListener(RecyclerViewUtils.OnPageChangedListener listener) {
-        mOnPageChangedListener = listener;
+    public void setOnWeekChangedListener(DateView.OnWeekChangedListener listener) {
+        mOnWeekChangedListener = listener;
     }
 
     public void scrollToPresent() {
@@ -152,19 +147,22 @@ public class DateRecycler extends RecyclerView {
     }
 
     public void scrollToDay(final WeekView.Day day) {
-        if (getAdapter() == null) {
+        if (getAdapter() == null || !(getAdapter() instanceof WeekAdapter)) {
             throw new IllegalStateException("Must call setAdapter() before scrolling to a day");
         }
         if (day == null) {
             return;
         }
-        final int position = day.toDateTime().getWeekOfWeekyear() - 1;
-        if (position >= 0 && position < getAdapter().getItemCount())
-        scrollToPosition(position);
+        final WeekAdapter weekAdapter = (WeekAdapter) getAdapter();
+        int position = day.toDateTime().getWeekOfWeekyear();
+        final int actualPosition = weekAdapter.getWeekPositionInAdapter(position, day.getYear());
+        if (actualPosition >= 0 && actualPosition < getAdapter().getItemCount()) {
+            scrollToPosition(actualPosition);
+        }
         post(new Runnable() {
             @Override
             public void run() {
-                WeekViewHolder holder = (WeekViewHolder) findViewHolderForAdapterPosition(position);
+                WeekViewHolder holder = (WeekViewHolder) findViewHolderForAdapterPosition(actualPosition);
                 if (holder != null) {
                     holder.getWeekView().onDayClick(day);
                 }

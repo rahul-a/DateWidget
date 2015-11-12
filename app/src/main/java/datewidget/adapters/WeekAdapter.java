@@ -98,6 +98,16 @@ public class WeekAdapter extends RecyclerView.Adapter<WeekViewHolder> {
         return actualYear;
     }
 
+    public int getWeekPositionInAdapter(int position, int year) {
+        int startYear = mDateTime.getYear();
+        int weekOfWeekYear = position;
+        while (year != startYear) {
+            weekOfWeekYear += mDateTime.withYear(startYear).weekOfWeekyear().withMaximumValue().getWeekOfWeekyear();
+            startYear += 1;
+        }
+        return weekOfWeekYear;
+    }
+
     @Override
     public int getItemCount() {
         return mWeekCount;

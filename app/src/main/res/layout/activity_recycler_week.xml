@@ -6,22 +6,9 @@
     android:padding="@dimen/activity_horizontal_margin"
     tools:context=".MainActivity">
 
-    <com.sample.datewidget.activities.DateRecycler
+    <datewidget.views.DateView
         android:id="@+id/recycler_view"
-        android:scrollbars="none"
-        android:layout_above="@+id/dummy_text"
         android:layout_width="match_parent"
-        android:layout_height="72dp" />
-
-    <TextView
-        android:id="@+id/dummy_text"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="@dimen/activity_horizontal_margin"
-        android:layout_alignParentBottom="true"
-        tools:text="Dummy text"
-        android:textColor="@color/mdtp_white"
-        android:textStyle="bold"
-        android:background="@color/mdtp_red"/>
+        android:layout_height="wrap_content" />
 
 </RelativeLayout>

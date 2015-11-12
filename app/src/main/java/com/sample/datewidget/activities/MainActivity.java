@@ -2,7 +2,6 @@ package com.sample.datewidget.activities;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.TextView;
@@ -15,6 +14,7 @@ import org.joda.time.DateTime;
 import datewidget.adapters.WeekAdapter;
 import datewidget.controllers.DatePickerController;
 import datewidget.utils.Utils;
+import datewidget.views.DateView;
 import datewidget.views.SimpleWeekView;
 import datewidget.views.WeekView;
 import timber.log.Timber;
@@ -91,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
         public void onDayOfMonthSelected(View view, WeekView.Day day) {
             Timber.v("controller:: Day tapped: %s", day);
             mSelectedDay = day;
-            TextView daySelectedText = (TextView) findViewById(R.id.dummy_text);
+            TextView daySelectedText = (TextView) findViewById(R.id.date_selected_text);
             if (daySelectedText != null) {
                 daySelectedText.setText(String.format("%s %s, %s", mSelectedDay.getMonthName(), mSelectedDay.getDate(), mSelectedDay.getYear()));
             }
@@ -175,21 +175,17 @@ public class MainActivity extends AppCompatActivity {
             weekView.setStartDate(dateTime);
         }
 
-        DateRecycler recyclerView = (DateRecycler) findViewById(R.id.recycler_view);
+        DateView recyclerView = (DateView) findViewById(R.id.recycler_view);
         if (recyclerView != null) {
             WeekAdapter weekAdapter = new WeekAdapter(mDatePickerController);
-            recyclerView.setHasFixedSize(true);
             recyclerView.setAdapter(weekAdapter);
             recyclerView.scrollToPresent();
-            Timber.v("Item count is --> %s", recyclerView.getAdapter().getItemCount());
-            recyclerView.addItemDecoration(new WeekDayLabelDecoration(this, RecyclerView.VERTICAL));
-            recyclerView.setOnPageChangedListener(new RecyclerViewUtils.OnPageChangedListener() {
+            recyclerView.setOnWeekChangedListener(new DateView.OnWeekChangedListener() {
                 @Override
-                public void onPageChanged(int currentPosition) {
-                    Timber.v("Position showing: %s", currentPosition);
+                public void onWeekChanged(int currentWeekOfWeekYear) {
+                    Timber.v("Position showing: %s", currentWeekOfWeekYear);
                 }
             });
-            recyclerView.scrollToPosition(103);
         }
     }
 
