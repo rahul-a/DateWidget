@@ -175,12 +175,12 @@ public class MainActivity extends AppCompatActivity {
             weekView.setStartDate(dateTime);
         }
 
-        DateView recyclerView = (DateView) findViewById(R.id.recycler_view);
-        if (recyclerView != null) {
+        DateView dateView = (DateView) findViewById(R.id.recycler_view);
+        if (dateView != null) {
             WeekAdapter weekAdapter = new WeekAdapter(mDatePickerController);
-            recyclerView.setAdapter(weekAdapter);
-            recyclerView.scrollToPresent();
-            recyclerView.setOnWeekChangedListener(new DateView.OnWeekChangedListener() {
+            dateView.setAdapter(weekAdapter);
+            dateView.scrollToPresent();
+            dateView.setOnWeekChangedListener(new DateView.OnWeekChangedListener() {
                 @Override
                 public void onWeekChanged(int currentWeekOfWeekYear) {
                     Timber.v("Position showing: %s", currentWeekOfWeekYear);
