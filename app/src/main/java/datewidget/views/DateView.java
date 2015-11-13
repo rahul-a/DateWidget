@@ -15,8 +15,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.sample.datewidget.R;
-import com.sample.datewidget.activities.DateRecycler;
-import com.sample.datewidget.activities.WeekDayLabelDecoration;
 
 import org.joda.time.DateTime;
 
@@ -81,7 +79,7 @@ public class DateView extends LinearLayout {
         params = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 getResources().getDimensionPixelSize(R.dimen.calendar_frame_height));
         dateRecycler.setLayoutParams(params);
-        dateRecycler.addItemDecoration(new WeekDayLabelDecoration(context, RecyclerView.VERTICAL));
+        dateRecycler.addItemDecoration(new DateRecycler.WeekDayLabelDecoration(context, RecyclerView.VERTICAL));
         addView(dateRecycler);
     }
 

@@ -146,18 +146,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recycler_week);
 
-        Timber.v("Selected Day --> " + (mSelectedDay == null ? null : mSelectedDay.getDate()));
-
-        FrameLayout frameLayout = (FrameLayout) findViewById(R.id.date_frame);
-        if (frameLayout != null) {
-            DateTime dateTime = new DateTime();
-            WeekView weekView = new SimpleWeekView(this, null, mDatePickerController);
-            mSelectedDay = mDatePickerController.getSelectedDay();
-            mAccentColor = Utils.getAccentColorFromThemeIfAvailable(this);
-            frameLayout.addView(weekView);
-            weekView.setStartDate(dateTime);
-        }
-
         DateView dateView = (DateView) findViewById(R.id.date_view);
         if (dateView != null) {
             dateView.setDateController(mDatePickerController);
