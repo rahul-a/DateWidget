@@ -2,10 +2,12 @@ package com.sample.datewidget.activities;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
+import com.flipboard.bottomsheet.BottomSheetLayout;
 import com.sample.datewidget.R;
 
 import org.joda.time.DateTime;
@@ -78,6 +80,9 @@ public class MainActivity extends AppCompatActivity {
             if (daySelectedText != null) {
                 daySelectedText.setText(day.toFormattedString());
             }
+
+            BottomSheetLayout bottomSheet = (BottomSheetLayout) findViewById(R.id.bottomsheet);
+            bottomSheet.showWithSheetView(LayoutInflater.from(view.getContext()).inflate(R.layout.activity_main, bottomSheet, false));
         }
 
 
