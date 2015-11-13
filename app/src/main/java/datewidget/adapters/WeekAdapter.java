@@ -15,7 +15,6 @@ import datewidget.views.WeekView;
 import timber.log.Timber;
 
 /**
- * TODO test against future dates
  * Created by priyabratapatnaik on 03/11/15.
  */
 public class WeekAdapter extends RecyclerView.Adapter<WeekViewHolder> {
@@ -41,9 +40,6 @@ public class WeekAdapter extends RecyclerView.Adapter<WeekViewHolder> {
             mWeekCount++;
         } else {
             mWeekCount += dateTime.weekOfWeekyear().withMaximumValue().getWeekOfWeekyear();
-            for (int i = Math.abs(mOffset); i > 0; i--) {
-                mWeekCount += dateTime.minusYears(i).weekOfWeekyear().withMaximumValue().getWeekOfWeekyear();
-            }
         }
     }
 
