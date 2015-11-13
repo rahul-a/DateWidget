@@ -9,9 +9,7 @@ import android.view.View;
 
 import com.sample.datewidget.R;
 
-import datewidget.adapters.WeekAdapter;
 import datewidget.controllers.DatePickerController;
-import datewidget.holders.WeekViewHolder;
 import datewidget.views.DateView;
 import datewidget.views.WeekView;
 
@@ -148,13 +146,13 @@ public class DateRecycler extends RecyclerView {
     }
 
     public void scrollToDay(final WeekView.Day day) {
-        if (getAdapter() == null || !(getAdapter() instanceof WeekAdapter)) {
+        if (getAdapter() == null || !(getAdapter() instanceof DateView.WeekAdapter)) {
             throw new IllegalStateException("Must call setAdapter() before scrolling to a day");
         }
         if (day == null) {
             return;
         }
-        final WeekAdapter weekAdapter = (WeekAdapter) getAdapter();
+        final DateView.WeekAdapter weekAdapter = (DateView.WeekAdapter) getAdapter();
         int position = day.toDateTime().getWeekOfWeekyear();
         final int actualPosition = weekAdapter.getWeekPositionInAdapter(position, day.getYear());
         if (actualPosition >= 0 && actualPosition < getAdapter().getItemCount()) {
@@ -163,7 +161,7 @@ public class DateRecycler extends RecyclerView {
         post(new Runnable() {
             @Override
             public void run() {
-                WeekViewHolder holder = (WeekViewHolder) findViewHolderForAdapterPosition(actualPosition);
+                DateView.WeekAdapter.WeekViewHolder holder = (DateView.WeekAdapter.WeekViewHolder) findViewHolderForAdapterPosition(actualPosition);
                 if (holder != null) {
                     holder.getWeekView().onDayClick(day);
                 }
@@ -172,11 +170,11 @@ public class DateRecycler extends RecyclerView {
     }
 
     public WeekView.Day getSelectedDay() {
-        if (getAdapter() == null || !(getAdapter() instanceof WeekAdapter)) {
+        if (getAdapter() == null || !(getAdapter() instanceof DateView.WeekAdapter)) {
             throw new IllegalStateException("Must call setAdapter() before scrolling to a day");
         }
         WeekView.Day selectedDay = null;
-        WeekAdapter weekAdapter = (WeekAdapter) getAdapter();
+        DateView.WeekAdapter weekAdapter = (DateView.WeekAdapter) getAdapter();
         DatePickerController controller = weekAdapter.getDateController();
         if (controller != null) {
             selectedDay = controller.getSelectedDay();

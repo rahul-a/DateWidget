@@ -2,10 +2,6 @@ package datewidget.controllers;
 
 import android.view.View;
 
-import com.sample.datewidget.fragments.DatePickerFragment;
-
-import java.util.Calendar;
-
 import datewidget.views.WeekView;
 
 /**
@@ -15,13 +11,7 @@ public interface DatePickerController {
 
     void onDayOfMonthSelected(View view, WeekView.Day day);
 
-    void registerOnDateChangedListener(DatePickerFragment.OnDateChangedListener listener);
-
-    void unregisterOnDateChangedListener(DatePickerFragment.OnDateChangedListener listener);
-
     WeekView.Day getSelectedDay();
-
-    boolean isThemeDark();
 
     int getAccentColor();
 

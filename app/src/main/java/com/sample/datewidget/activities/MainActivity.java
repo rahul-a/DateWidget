@@ -7,11 +7,9 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.sample.datewidget.R;
-import com.sample.datewidget.fragments.DatePickerFragment;
 
 import org.joda.time.DateTime;
 
-import datewidget.adapters.WeekAdapter;
 import datewidget.controllers.DatePickerController;
 import datewidget.utils.Utils;
 import datewidget.views.DateView;
@@ -24,21 +22,6 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
 
     DatePickerController mDatePickerController = new DatePickerController() {
-
-        @Override
-        public void registerOnDateChangedListener(DatePickerFragment.OnDateChangedListener listener) {
-
-        }
-
-        @Override
-        public void unregisterOnDateChangedListener(DatePickerFragment.OnDateChangedListener listener) {
-
-        }
-
-        @Override
-        public boolean isThemeDark() {
-            return false;
-        }
 
         /**
          * Get the accent color of this dialog
@@ -93,7 +76,6 @@ public class MainActivity extends AppCompatActivity {
             mSelectedDay = day;
             TextView daySelectedText = (TextView) findViewById(R.id.date_selected_text);
             if (daySelectedText != null) {
-                day = null;
                 daySelectedText.setText(day.toFormattedString());
             }
         }
@@ -178,8 +160,7 @@ public class MainActivity extends AppCompatActivity {
 
         DateView dateView = (DateView) findViewById(R.id.date_view);
         if (dateView != null) {
-            WeekAdapter weekAdapter = new WeekAdapter(mDatePickerController);
-            dateView.setAdapter(weekAdapter);
+            dateView.setDateController(mDatePickerController);
             dateView.setOnWeekChangedListener(new DateView.OnWeekChangedListener() {
                 @Override
                 public void onWeekChanged(int currentWeekOfWeekYear) {
