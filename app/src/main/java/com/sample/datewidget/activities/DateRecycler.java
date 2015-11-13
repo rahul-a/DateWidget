@@ -10,6 +10,7 @@ import android.view.View;
 import com.sample.datewidget.R;
 
 import datewidget.adapters.WeekAdapter;
+import datewidget.controllers.DatePickerController;
 import datewidget.holders.WeekViewHolder;
 import datewidget.views.DateView;
 import datewidget.views.WeekView;
@@ -168,5 +169,18 @@ public class DateRecycler extends RecyclerView {
                 }
             }
         });
+    }
+
+    public WeekView.Day getSelectedDay() {
+        if (getAdapter() == null || !(getAdapter() instanceof WeekAdapter)) {
+            throw new IllegalStateException("Must call setAdapter() before scrolling to a day");
+        }
+        WeekView.Day selectedDay = null;
+        WeekAdapter weekAdapter = (WeekAdapter) getAdapter();
+        DatePickerController controller = weekAdapter.getDateController();
+        if (controller != null) {
+            selectedDay = controller.getSelectedDay();
+        }
+        return selectedDay;
     }
 }

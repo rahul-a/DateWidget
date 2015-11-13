@@ -93,7 +93,8 @@ public class MainActivity extends AppCompatActivity {
             mSelectedDay = day;
             TextView daySelectedText = (TextView) findViewById(R.id.date_selected_text);
             if (daySelectedText != null) {
-                daySelectedText.setText(String.format("%s %s, %s", mSelectedDay.getMonthName(), mSelectedDay.getDate(), mSelectedDay.getYear()));
+                day = null;
+                daySelectedText.setText(day.toFormattedString());
             }
         }
 
@@ -175,11 +176,10 @@ public class MainActivity extends AppCompatActivity {
             weekView.setStartDate(dateTime);
         }
 
-        DateView dateView = (DateView) findViewById(R.id.recycler_view);
+        DateView dateView = (DateView) findViewById(R.id.date_view);
         if (dateView != null) {
             WeekAdapter weekAdapter = new WeekAdapter(mDatePickerController);
             dateView.setAdapter(weekAdapter);
-            dateView.scrollToPresent();
             dateView.setOnWeekChangedListener(new DateView.OnWeekChangedListener() {
                 @Override
                 public void onWeekChanged(int currentWeekOfWeekYear) {

@@ -5,8 +5,11 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -14,10 +17,6 @@ import android.view.View;
 import com.sample.datewidget.R;
 
 import org.joda.time.DateTime;
-
-import java.security.InvalidParameterException;
-import java.util.Calendar;
-import java.util.HashMap;
 
 import datewidget.controllers.DatePickerController;
 import timber.log.Timber;
@@ -29,50 +28,11 @@ public abstract class WeekView extends View {
 
     private static final String TAG = WeekView.class.getSimpleName();
 
-    /**
-     * These params can be passed into the view to control how it appears.
-     * {@link #VIEW_PARAMS_WEEK} is the only required field, though the default
-     * values are unlikely to fit most layouts correctly.
-     */
-    /**
-     * This sets the height of this week in pixels
-     */
-    public static final String VIEW_PARAMS_HEIGHT = "height";
-
-    /**
-     * Specifies the month to be shown.
-     */
-    public static final String VIEW_PARAMS_MONTH = "month";
-
-    /**
-     * Specifies the current year to be shown.
-     */
-    public static final String VIEW_PARAMS_YEAR = "year";
-
-    /**
-     * Specifies the position week to be shown depending on the date.
-     */
-    public static final String VIEW_PARAMS_DATE = "date";
-
-    /**
-     * This sets one of the days in this view as selected {@link Calendar#SUNDAY}
-     * through {@link Calendar#SATURDAY}.
-     */
-    public static final String VIEW_PARAMS_SELECTED_DAY = "selected_day";
-    /**
-     * Which day the week should start on. {@link Calendar#SUNDAY} through
-     * {@link Calendar#SATURDAY}.
-     */
-    public static final String VIEW_PARAMS_WEEK_START = "week_start";
-
     protected static final int MAX_NUM_ROWS = 1;
     protected static final int DEFAULT_SELECTED_DAY = -1;
-    protected static final int DEFAULT_WEEK_START = Calendar.SUNDAY;
     protected static final int DEFAULT_NUM_DAYS = 7;
 
     private static final int SELECTED_CIRCLE_ALPHA = 255;
-
-    protected static final int DEFAULT_NUM_ROWS = 1;
 
     protected int mDateTextSize;
     protected static int mDayLabelTextSize;
@@ -104,8 +64,6 @@ public abstract class WeekView extends View {
     protected Day mSelectedDay;
     // Which day is today [0-6] or -1 if no day is today
     protected int mToday = DEFAULT_SELECTED_DAY;
-    // Which day of the week to start on [0-6]
-    protected int mWeekStart = DEFAULT_WEEK_START;
     // How many days to display
     protected int mNumDays = DEFAULT_NUM_DAYS;
     // The number of days + a spot for week number if it is displayed
@@ -211,7 +169,6 @@ public abstract class WeekView extends View {
         int j = 0;
         for (int dayNumber = 0; dayNumber < mNumCells; dayNumber++) {
             final int x = (int)((2 * j + 1) * dayWidthHalf + mEdgePadding);
-
             int yRelativeToDay = y;
             final int startX = (int)(x - dayWidthHalf);
             final int stopX = (int)(x + dayWidthHalf);
@@ -413,7 +370,7 @@ public abstract class WeekView extends View {
         }
     }
 
-    public static class Day {
+    public static class Day implements Parcelable {
         int year;
         int month;
         String day;
@@ -492,6 +449,56 @@ public abstract class WeekView extends View {
             }
             return false;
         }
+
+        public String toFormattedString() {
+            if (isEmpty()) {
+                return null;
+            }
+            return String.format("%s %s, %s", monthName, date, year);
+        }
+
+        public boolean isEmpty() {
+            if (date == 0 && month == 0 && year == 0) {
+                return true;
+            }
+            if (TextUtils.isEmpty(monthName) || TextUtils.isEmpty(day)) {
+                return true;
+            }
+
+            return false;
+        }
+
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            dest.writeInt(this.year);
+            dest.writeInt(this.month);
+            dest.writeString(this.day);
+            dest.writeInt(this.date);
+            dest.writeString(this.monthName);
+        }
+
+        protected Day(Parcel in) {
+            this.year = in.readInt();
+            this.month = in.readInt();
+            this.day = in.readString();
+            this.date = in.readInt();
+            this.monthName = in.readString();
+        }
+
+        public static final Parcelable.Creator<Day> CREATOR = new Parcelable.Creator<Day>() {
+            public Day createFromParcel(Parcel source) {
+                return new Day(source);
+            }
+
+            public Day[] newArray(int size) {
+                return new Day[size];
+            }
+        };
     }
 
     public Day[] getDaysInWeek() {

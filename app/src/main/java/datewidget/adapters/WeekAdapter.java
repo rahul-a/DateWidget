@@ -112,4 +112,8 @@ public class WeekAdapter extends RecyclerView.Adapter<WeekViewHolder> {
     public int getItemCount() {
         return mWeekCount;
     }
+
+    public DatePickerController getDateController() {
+        return mController;
+    }
 }
