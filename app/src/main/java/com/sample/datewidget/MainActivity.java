@@ -1,21 +1,17 @@
-package com.sample.datewidget.activities;
+package com.sample.datewidget;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.flipboard.bottomsheet.BottomSheetLayout;
-import com.sample.datewidget.R;
 
 import org.joda.time.DateTime;
 
 import datewidget.controllers.DatePickerController;
-import datewidget.utils.Utils;
 import datewidget.views.DateView;
-import datewidget.views.SimpleWeekView;
 import datewidget.views.WeekView;
 import timber.log.Timber;
 
@@ -82,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             BottomSheetLayout bottomSheet = (BottomSheetLayout) findViewById(R.id.bottomsheet);
-            bottomSheet.showWithSheetView(LayoutInflater.from(view.getContext()).inflate(R.layout.activity_main, bottomSheet, false));
+            // bottomSheet.showWithSheetView(LayoutInflater.from(view.getContext()).inflate(R.layout.activity_main, bottomSheet, false));
         }
 
 
@@ -180,5 +176,9 @@ public class MainActivity extends AppCompatActivity {
             return false;
         }
         return day.toDateTime().withTimeAtStartOfDay().isBefore(mMinDate);
+    }
+
+    public WeekView.Day getSelectedDay() {
+        return mSelectedDay;
     }
 }
