@@ -267,7 +267,7 @@ public class DateView extends LinearLayout {
                 weekOfWeekYear += mDateTime.withYear(startYear).weekOfWeekyear().withMaximumValue().getWeekOfWeekyear();
                 startYear += 1;
             }
-            return weekOfWeekYear;
+            return weekOfWeekYear - 1;
         }
 
         @Override
