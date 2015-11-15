@@ -124,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public WeekView.Day getStartDate() {
-            return new WeekView.Day(new DateTime(2015, 11, 14, 0, 0, 0));
+            return new WeekView.Day(new DateTime(2015, 2, 14, 0, 0, 0));
         }
     };
 

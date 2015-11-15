@@ -205,10 +205,17 @@ public class DateView extends LinearLayout {
                 }
                 mWeekCount++;
             } else {
-                mWeekCount += dateTime.weekOfWeekyear().withMaximumValue().getWeekOfWeekyear();
+                int maxDay = mDateTime.dayOfMonth().withMaximumValue().getDayOfMonth();
+                firstWeek = mDateTime.withDayOfMonth(1).getWeekOfWeekyear();
+
+                int lastWeek = mDateTime.withDayOfMonth(maxDay).getWeekOfWeekyear();
+                mWeekCount += lastWeek - firstWeek + 1;
+                int start = dateTime.withWeekOfWeekyear(lastWeek).dayOfWeek().withMinimumValue().getDayOfMonth();
+                int end = dateTime.withWeekOfWeekyear(lastWeek).dayOfWeek().withMaximumValue().getDayOfMonth();
+                Timber.v("Week count: %s, first week: %s, last week: %s, Last weeks dates --> %s to %s", mWeekCount, firstWeek, lastWeek, start, end);
             }
         }
-
+        int firstWeek;
         @Override
         public WeekViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.week_view_layout, parent, false);
@@ -224,8 +231,8 @@ public class DateView extends LinearLayout {
 
             int actualYear = getYearForWeekPosition(position);
             int weekPos = getTranslatedWeekPosition(position, actualYear);
-            DateTime dateTime = mDateTime.withYear(actualYear).withWeekyear(actualYear).withWeekOfWeekyear(weekPos).withDayOfWeek(1);
-            Timber.v("Pos %s, Year %s, week %s", position, mDateTime.getYear(), mDateTime.withYear(actualYear).withWeekyear(actualYear).withWeekOfWeekyear(weekPos).withDayOfWeek(1));
+            DateTime dateTime = mDateTime.withYear(actualYear).withWeekyear(actualYear).withWeekOfWeekyear(position + firstWeek).withDayOfWeek(1);
+            Timber.v("Pos %s, Year %s, week %s", position, mDateTime.getYear(), mDateTime.withYear(actualYear).withWeekyear(actualYear).withWeekOfWeekyear(position + firstWeek).withDayOfWeek(1));
             weekView.setStartDate(dateTime);
         }
 
@@ -267,7 +274,7 @@ public class DateView extends LinearLayout {
                 weekOfWeekYear += mDateTime.withYear(startYear).weekOfWeekyear().withMaximumValue().getWeekOfWeekyear();
                 startYear += 1;
             }
-            return weekOfWeekYear - 1;
+            return weekOfWeekYear - firstWeek;
         }
 
         @Override
