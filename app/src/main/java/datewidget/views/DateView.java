@@ -56,6 +56,19 @@ public class DateView extends LinearLayout {
         setAdapter(weekAdapter);
     }
 
+    public void setViewMode(int mode) {
+        RecyclerView.Adapter adapter = dateRecycler.getAdapter();
+        if (adapter != null && adapter instanceof RecyclerView.Adapter) {
+            WeekAdapter weekAdapter = (WeekAdapter) adapter;
+            Timber.v("Setting mode");
+            weekAdapter.setMode(mode);
+            weekAdapter.notifyDataSetChanged();
+            dateRecycler.scrollToPresent();
+        } else {
+            throw new IllegalStateException("Adapter should be set before setting view mode");
+        }
+    }
+
     private void init(Context context, AttributeSet attrs) {
         LayoutParams params;
         setOrientation(VERTICAL);
@@ -185,11 +198,16 @@ public class DateView extends LinearLayout {
      */
     public static class WeekAdapter extends RecyclerView.Adapter<WeekAdapter.WeekViewHolder> {
 
+        public static final int MODE_MONTH = 0;
+        public static final int MODE_YEAR = 1;
+        public static final int INVALID_POSITION = -1;
+
         private static final String TAG = WeekAdapter.class.getSimpleName();
         private DatePickerController mController;
         private DateTime mDateTime;
         private int mWeekCount;
         private int mOffset;
+        private int mMode = MODE_YEAR;
 
         public WeekAdapter(DatePickerController controller) {
             mController = controller;
@@ -197,24 +215,43 @@ public class DateView extends LinearLayout {
             int presentYear = mDateTime.getYear();
             mDateTime = mController == null ? new DateTime() : mController.getStartDate().toDateTime();
             mOffset = presentYear - mDateTime.getYear();
-            DateTime dateTime = mDateTime.weekOfWeekyear().setCopy(1);
-            if (mOffset > 0) {
-                mWeekCount += dateTime.weekOfWeekyear().withMaximumValue().getWeekOfWeekyear();
-                for (int i = mOffset; i > 0; i--) {
-                    mWeekCount += dateTime.plusYears(i).weekOfWeekyear().withMaximumValue().getWeekOfWeekyear();
-                }
-                mWeekCount++;
-            } else {
-                int maxDay = mDateTime.dayOfMonth().withMaximumValue().getDayOfMonth();
-                firstWeek = mDateTime.withDayOfMonth(1).getWeekOfWeekyear();
+            adjustWeekCount();
+        }
 
-                int lastWeek = mDateTime.withDayOfMonth(maxDay).getWeekOfWeekyear();
-                mWeekCount += lastWeek - firstWeek + 1;
-                int start = dateTime.withWeekOfWeekyear(lastWeek).dayOfWeek().withMinimumValue().getDayOfMonth();
-                int end = dateTime.withWeekOfWeekyear(lastWeek).dayOfWeek().withMaximumValue().getDayOfMonth();
-                Timber.v("Week count: %s, first week: %s, last week: %s, Last weeks dates --> %s to %s", mWeekCount, firstWeek, lastWeek, start, end);
+        public void setMode(int mode) {
+            if (mode != MODE_MONTH && mode != MODE_YEAR) {
+                Timber.e("Invalid mode");
+                return;
+            }
+            if (mMode != mode) {
+                mMode = mode;
+                adjustWeekCount();
+                notifyDataSetChanged();
             }
         }
+
+        private void adjustWeekCount() {
+            if (mMode == MODE_MONTH) {
+                int maxDay = mDateTime.dayOfMonth().withMaximumValue().getDayOfMonth();
+                firstWeek = mDateTime.withDayOfMonth(1).getWeekOfWeekyear();
+                int lastWeek = mDateTime.withDayOfMonth(maxDay).getWeekOfWeekyear();
+                mWeekCount = lastWeek - firstWeek + 1;
+                int start = mDateTime.withWeekOfWeekyear(lastWeek).dayOfWeek().withMinimumValue().getDayOfMonth();
+                int end = mDateTime.withWeekOfWeekyear(lastWeek).dayOfWeek().withMaximumValue().getDayOfMonth();
+                Timber.v("Week count: %s, first week: %s, last week: %s, Last weeks dates --> %s to %s", mWeekCount, firstWeek, lastWeek, start, end);
+            } else {
+                if (mOffset > 0) {
+                    mWeekCount += mDateTime.weekOfWeekyear().withMaximumValue().getWeekOfWeekyear();
+                    for (int i = mOffset; i > 0; i--) {
+                        mWeekCount += mDateTime.plusYears(i).weekOfWeekyear().withMaximumValue().getWeekOfWeekyear();
+                    }
+                    mWeekCount++;
+                } else {
+                    mWeekCount = mDateTime.weekOfWeekyear().withMaximumValue().getWeekOfWeekyear();
+                }
+            }
+        }
+
         int firstWeek;
         @Override
         public WeekViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -231,16 +268,22 @@ public class DateView extends LinearLayout {
 
             int actualYear = getYearForWeekPosition(position);
             int weekPos = getTranslatedWeekPosition(position, actualYear);
-            DateTime dateTime = mDateTime.withYear(actualYear).withWeekyear(actualYear).withWeekOfWeekyear(position + firstWeek).withDayOfWeek(1);
-            Timber.v("Pos %s, Year %s, week %s", position, mDateTime.getYear(), mDateTime.withYear(actualYear).withWeekyear(actualYear).withWeekOfWeekyear(position + firstWeek).withDayOfWeek(1));
+            DateTime dateTime = mDateTime.withYear(actualYear).withWeekyear(actualYear).withWeekOfWeekyear(weekPos).withDayOfWeek(1);
+            Timber.v("Pos %s, Year %s, week %s", position, mDateTime.getYear(), mDateTime.withYear(actualYear).withWeekyear(actualYear).withWeekOfWeekyear(weekPos).withDayOfWeek(1));
             weekView.setStartDate(dateTime);
         }
 
         private int getTranslatedWeekPosition(int position, int year) {
-            int maxWeeks = mDateTime.withYear(year).weekOfWeekyear().withMaximumValue().getWeekOfWeekyear();
-            int translatedPos = (position + 1) % maxWeeks;
-            if (translatedPos == 0) {
-                translatedPos += maxWeeks;
+            int maxWeeks;
+            int translatedPos = position;
+            if (mMode == MODE_YEAR) {
+                maxWeeks = mDateTime.withYear(year).weekOfWeekyear().withMaximumValue().getWeekOfWeekyear();
+                translatedPos = (position + 1) % maxWeeks;
+                if (translatedPos == 0) {
+                    translatedPos += maxWeeks;
+                }
+            } else if (mMode == MODE_MONTH) {
+                translatedPos += firstWeek;
             }
             // Timber.v("Translated pos %s", translatedPos);
             return translatedPos;
@@ -267,14 +310,24 @@ public class DateView extends LinearLayout {
             return actualYear;
         }
 
-        public int getWeekPositionInAdapter(int position, int year) {
+        public int getWeekPositionInAdapter(int weekOfWeekYear, int year) {
             int startYear = mDateTime.getYear();
-            int weekOfWeekYear = position;
             while (year != startYear) {
                 weekOfWeekYear += mDateTime.withYear(startYear).weekOfWeekyear().withMaximumValue().getWeekOfWeekyear();
                 startYear += 1;
             }
-            return weekOfWeekYear - firstWeek;
+            int weekPosition = 0;
+            if (mMode == MODE_YEAR) {
+                weekPosition = weekOfWeekYear - 1;
+            } else if (mMode == MODE_MONTH) {
+                weekPosition = weekOfWeekYear - firstWeek;
+            }
+            if (weekPosition > 0 && weekPosition < mWeekCount) {
+                Timber.v("WeekPosition: %s, WeekCount: %s", weekPosition, mWeekCount);
+                return weekPosition;
+            }
+            Timber.e("Couldn't find position in adapter");
+            return INVALID_POSITION;
         }
 
         @Override
@@ -284,6 +337,10 @@ public class DateView extends LinearLayout {
 
         public DatePickerController getDateController() {
             return mController;
+        }
+
+        public WeekView.Day getStartDay() {
+            return new WeekView.Day(mDateTime);
         }
 
         /**

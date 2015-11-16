@@ -14,6 +14,7 @@ import datewidget.utils.SmoothLinearLayoutManager;
 import datewidget.utils.RecyclerViewUtils;
 
 import datewidget.controllers.DatePickerController;
+import timber.log.Timber;
 
 /**
  * Created by priyabratapatnaik on 10/11/15.
@@ -155,20 +156,23 @@ public class DateRecycler extends RecyclerView {
             return;
         }
         final DateView.WeekAdapter weekAdapter = (DateView.WeekAdapter) getAdapter();
-        int position = day.toDateTime().getWeekOfWeekyear();
-        final int actualPosition = weekAdapter.getWeekPositionInAdapter(position, day.getYear());
+        int weekOfWeekyear = day.toDateTime().getWeekOfWeekyear();
+        final int actualPosition = weekAdapter.getWeekPositionInAdapter(weekOfWeekyear, day.getYear());
         if (actualPosition >= 0 && actualPosition < getAdapter().getItemCount()) {
             scrollToPosition(actualPosition);
-        }
-        post(new Runnable() {
-            @Override
-            public void run() {
-                DateView.WeekAdapter.WeekViewHolder holder = (DateView.WeekAdapter.WeekViewHolder) findViewHolderForAdapterPosition(actualPosition);
-                if (holder != null) {
-                    holder.getWeekView().onDayClick(day);
+            post(new Runnable() {
+                @Override
+                public void run() {
+                    DateView.WeekAdapter.WeekViewHolder holder = (DateView.WeekAdapter.WeekViewHolder) findViewHolderForAdapterPosition(actualPosition);
+                    if (holder != null) {
+                        holder.getWeekView().onDayClick(day);
+                    }
                 }
-            }
-        });
+            });
+        } else {
+            Timber.e("Couldn't scroll to position: %s", actualPosition);
+            scrollToDay(weekAdapter.getStartDay());
+        }
     }
 
     public WeekView.Day getSelectedDay() {

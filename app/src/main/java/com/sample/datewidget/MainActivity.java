@@ -78,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             BottomSheetLayout bottomSheet = (BottomSheetLayout) findViewById(R.id.bottomsheet);
-            // bottomSheet.showWithSheetView(LayoutInflater.from(view.getContext()).inflate(R.layout.activity_main, bottomSheet, false));
+            bottomSheet.showWithSheetView(LayoutInflater.from(view.getContext()).inflate(R.layout.activity_main, bottomSheet, false));
         }
 
 
@@ -150,6 +150,7 @@ public class MainActivity extends AppCompatActivity {
         DateView dateView = (DateView) findViewById(R.id.date_view);
         if (dateView != null) {
             dateView.setDateController(mDatePickerController);
+            dateView.setViewMode(DateView.WeekAdapter.MODE_MONTH);
             dateView.setOnWeekChangedListener(new DateView.OnWeekChangedListener() {
                 @Override
                 public void onWeekChanged(int currentWeekOfWeekYear) {
