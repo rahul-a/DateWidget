@@ -170,6 +170,7 @@ public class DateRecycler extends RecyclerView {
                 }
             });
         } else {
+            // If present date isn't found in the adapter then scroll to the start date
             Timber.e("Couldn't scroll to position: %s", actualPosition);
             scrollToDay(weekAdapter.getStartDay());
         }

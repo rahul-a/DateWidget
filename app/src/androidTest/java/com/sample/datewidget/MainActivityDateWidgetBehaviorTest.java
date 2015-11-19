@@ -53,15 +53,19 @@ public class MainActivityDateWidgetBehaviorTest {
         WeekView.Day selectedDay;
         for (int j = 0; j < count; j++) {
             onView(withId(R.id.date_recycler_view)).perform(RecyclerViewActions.scrollToPosition(j));
+
             for (int i = 0; i < 7; i++) {
                 xPos[i] = (2 * i + 1) * dayWidthHalf;
                 onView(withId(R.id.date_recycler_view))
                         .perform(RecyclerViewActions.actionOnItemAtPosition(j, clickXY(xPos[i], y)));
 
                 selectedDay = mainActivity.getSelectedDay();
+
                 DateTime dateTime = new DateTime(selectedDay.getYear(), selectedDay.getMonth(), selectedDay.getDate(), 0, 0, 0);
                 String dayOfWeek = dateTime.dayOfWeek().getAsShortText();
+
                 Assert.assertEquals("Day of week is not same", dayOfWeek, selectedDay.getDay());
+
                 onView(withId(R.id.date_selected_text))
                         .check(matches(withText(selectedDay.toFormattedString())))
                         .check(matches(isDisplayed()));
