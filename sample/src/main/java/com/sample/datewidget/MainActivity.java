@@ -78,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             BottomSheetLayout bottomSheet = (BottomSheetLayout) findViewById(R.id.bottomsheet);
-            bottomSheet.showWithSheetView(LayoutInflater.from(view.getContext()).inflate(R.layout.activity_main, bottomSheet, false));
+            // bottomSheet.showWithSheetView(LayoutInflater.from(view.getContext()).inflate(R.layout.activity_main, bottomSheet, false));
         }
 
 
