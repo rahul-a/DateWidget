@@ -6,3 +6,5 @@
 .DS_Store
 /build
 /captures
+/sample/.DS_Store
+/sample/sample.iml
