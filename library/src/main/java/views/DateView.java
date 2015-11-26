@@ -11,7 +11,7 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.example.library.R;
@@ -19,13 +19,13 @@ import com.example.library.R;
 import org.joda.time.DateTime;
 
 import controllers.DatePickerController;
-import utils.Utils;
 import timber.log.Timber;
+import utils.Utils;
 
 /**
  * Created by priyabratapatnaik on 12/11/15.
  */
-public class DateView extends LinearLayout {
+public class DateView extends RelativeLayout {
 
     public interface OnWeekChangedListener {
         void onWeekChanged(int currentWeekOfWeekYear);
@@ -70,10 +70,9 @@ public class DateView extends LinearLayout {
     }
 
     private void init(Context context, AttributeSet attrs) {
-        LayoutParams params;
-        setOrientation(VERTICAL);
+        RelativeLayout.LayoutParams params;
         dateSelected = new TextView(context);
-        params = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        params = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
         int padding = getResources().getDimensionPixelSize(R.dimen.std_padding);
         params.setMargins(padding, 0, padding, padding);
         dateSelected.setLayoutParams(params);
@@ -85,23 +84,33 @@ public class DateView extends LinearLayout {
         dateSelected.setId(R.id.date_selected_text);
         addView(dateSelected);
 
+
         dateRecycler = new DateRecycler(context, attrs);
         dateRecycler.setId(R.id.date_recycler_view);
         dateRecycler.setHorizontalScrollBarEnabled(false);
         dateRecycler.setHasFixedSize(true);
-        params = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+        params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,
                 getResources().getDimensionPixelSize(R.dimen.calendar_frame_height));
+        params.addRule(BELOW, R.id.date_selected_text);
         dateRecycler.setLayoutParams(params);
         dateRecycler.addItemDecoration(new DateRecycler.WeekDayLabelDecoration(context, RecyclerView.VERTICAL));
         addView(dateRecycler);
     }
 
+    /**
+     * Sets the height and width for the viewgroup, so any changes to its children's layout params must be done here
+     * @param w
+     * @param h
+     * @param oldW
+     * @param oldH
+     */
     @Override
     protected void onSizeChanged(int w, int h, int oldW, int oldH) {
         super.onSizeChanged(w, h, oldW, oldH);
-        LayoutParams params = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        RelativeLayout.LayoutParams params = new LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
         int padding = getResources().getDimensionPixelSize(R.dimen.std_padding);
         params.setMargins((w / 14) - (2 * padding), 0, padding, padding);
+        params.addRule(CENTER_HORIZONTAL);
         dateSelected.setLayoutParams(params);
     }
 
