@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- From: file:/Users/aritraroy/DemoProjects/DateWidget/app/build/intermediates/exploded-aar/net.danlew/android.joda/2.8.1/res/values-lv-rLV/values-lv-rLV.xml -->
+    <eat-comment/>
+    <string name="joda_time_android_date_time">%1$s, %2$s</string>
+</resources>

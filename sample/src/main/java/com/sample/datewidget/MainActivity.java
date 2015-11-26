@@ -2,7 +2,6 @@ package com.sample.datewidget;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 
@@ -74,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
             mSelectedDay = day;
             TextView daySelectedText = (TextView) findViewById(R.id.date_selected_text);
             if (daySelectedText != null) {
-                daySelectedText.setText(day.toFormattedString());
+                daySelectedText.setText(mSelectedDay.getMonthName());
             }
 
             BottomSheetLayout bottomSheet = (BottomSheetLayout) findViewById(R.id.bottomsheet);
