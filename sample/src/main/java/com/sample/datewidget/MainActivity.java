@@ -5,8 +5,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.TextView;
 
-import com.flipboard.bottomsheet.BottomSheetLayout;
-
 import org.joda.time.DateTime;
 
 import controllers.DatePickerController;
@@ -69,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onDayOfMonthSelected(View view, WeekView.Day day) {
+
             Timber.v("controller:: Day tapped: %s", day);
             mSelectedDay = day;
             TextView daySelectedText = (TextView) findViewById(R.id.date_selected_text);
@@ -76,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
                 daySelectedText.setText(mSelectedDay.getMonthName());
             }
 
-            BottomSheetLayout bottomSheet = (BottomSheetLayout) findViewById(R.id.bottomsheet);
+            // BottomSheetLayout bottomSheet = (BottomSheetLayout) findViewById(R.id.bottomsheet);
             // bottomSheet.showWithSheetView(LayoutInflater.from(view.getContext()).inflate(R.layout.activity_main, bottomSheet, false));
         }
 
@@ -149,14 +148,15 @@ public class MainActivity extends AppCompatActivity {
         DateView dateView = (DateView) findViewById(R.id.date_view);
         if (dateView != null) {
             dateView.setDateController(mDatePickerController);
-            dateView.setViewMode(DateView.WeekAdapter.MODE_MONTH);
-            dateView.setOnWeekChangedListener(new DateView.OnWeekChangedListener() {
+            dateView.setViewMode(DateView.WeekAdapter.MODE_YEAR);
+            dateView.addOnWeekChangedListener(new DateView.OnWeekChangedListener() {
                 @Override
-                public void onWeekChanged(int currentWeekOfWeekYear) {
+                public void onWeekChanged(int currentWeekOfWeekYear, int currentYear) {
                     Timber.v("Position showing: %s", currentWeekOfWeekYear);
                 }
             });
         }
+
     }
 
     @Override

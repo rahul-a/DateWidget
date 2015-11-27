@@ -13,4 +13,6 @@
     <dimen name="std_padding">8dp</dimen>
     <dimen name="day_separator">8dp</dimen>
     <dimen name="scroll_offset">100dp</dimen>
+    <dimen name="arrow_width">32dp</dimen>
+    <dimen name="arrow_height">24dp</dimen>
 </resources>

@@ -371,6 +371,7 @@ public abstract class WeekView extends View {
     }
 
     public static class Day implements Parcelable {
+
         int year;
         int month;
         String day;

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Typeface;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.util.SparseArray;
@@ -11,6 +12,7 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -25,10 +27,10 @@ import utils.Utils;
 /**
  * Created by priyabratapatnaik on 12/11/15.
  */
-public class DateView extends RelativeLayout {
+public class DateView extends RelativeLayout implements View.OnClickListener {
 
     public interface OnWeekChangedListener {
-        void onWeekChanged(int currentWeekOfWeekYear);
+        void onWeekChanged(int currentWeekOfWeekYear, int currentYear);
     }
 
     public DateView(Context context) {
@@ -49,6 +51,29 @@ public class DateView extends RelativeLayout {
     private DateRecycler dateRecycler;
     private TextView dateSelected;
     private DatePickerController mDatePickerController;
+    private ImageView leftArrow, rightArrow;
+
+    private OnWeekChangedListener mOnWeekChangedListener = new OnWeekChangedListener() {
+        @Override
+        public void onWeekChanged(int currentWeekOfWeekYear, int currentYear) {
+
+            DateTime dateTime = new DateTime();
+            String monthName = dateTime.withWeekOfWeekyear(currentWeekOfWeekYear).withYear(currentWeekOfWeekYear).monthOfYear().getAsText();
+            dateSelected.setText(monthName);
+
+            WeekAdapter adapter = (WeekAdapter) dateRecycler.getAdapter();
+
+            if(currentWeekOfWeekYear == adapter.getItemCount()){
+                rightArrow.setEnabled(false);
+            } else if(currentWeekOfWeekYear == 0){
+                leftArrow.setEnabled(false);
+            }else{
+                leftArrow.setEnabled(true);
+                rightArrow.setEnabled(true);
+            }
+
+        }
+    };
 
     public void setDateController(DatePickerController controller) {
         mDatePickerController = controller;
@@ -70,6 +95,8 @@ public class DateView extends RelativeLayout {
     }
 
     private void init(Context context, AttributeSet attrs) {
+
+        // Adding the selected month TextView
         RelativeLayout.LayoutParams params;
         dateSelected = new TextView(context);
         params = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
@@ -84,34 +111,72 @@ public class DateView extends RelativeLayout {
         dateSelected.setId(R.id.date_selected_text);
         addView(dateSelected);
 
+        // Adding the left arrow
+        leftArrow = new ImageView(context);
+        leftArrow.setId(R.id.date_arrow_left);
+        leftArrow.setImageResource(R.drawable.arrow_left);
+        leftArrow.setAdjustViewBounds(true);
+        params = new RelativeLayout.LayoutParams(getResources().getDimensionPixelSize(R.dimen.arrow_width), getResources().getDimensionPixelSize(R.dimen.arrow_height));
+        params.addRule(BELOW, R.id.date_selected_text);
+        params.addRule(ALIGN_TOP, R.id.date_recycler_view);
+        params.addRule(ALIGN_BOTTOM, R.id.date_recycler_view);
+        params.addRule(ALIGN_PARENT_LEFT);
+        leftArrow.setLayoutParams(params);
+        addView(leftArrow);
 
+        // Adding the right arrow
+        rightArrow = new ImageView(context);
+        rightArrow.setId(R.id.date_arrow_right);
+        rightArrow.setImageResource(R.drawable.arrow_right);
+        rightArrow.setAdjustViewBounds(true);
+        params = new RelativeLayout.LayoutParams(getResources().getDimensionPixelSize(R.dimen.arrow_width), getResources().getDimensionPixelSize(R.dimen.arrow_height));
+        params.addRule(BELOW, R.id.date_selected_text);
+        params.addRule(ALIGN_TOP, R.id.date_recycler_view);
+        params.addRule(ALIGN_BOTTOM, R.id.date_recycler_view);
+        params.addRule(ALIGN_PARENT_RIGHT);
+        rightArrow.setLayoutParams(params);
+        addView(rightArrow);
+
+        // Adding the WeekView
         dateRecycler = new DateRecycler(context, attrs);
         dateRecycler.setId(R.id.date_recycler_view);
         dateRecycler.setHorizontalScrollBarEnabled(false);
         dateRecycler.setHasFixedSize(true);
         params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,
                 getResources().getDimensionPixelSize(R.dimen.calendar_frame_height));
+        params.addRule(RIGHT_OF, R.id.date_arrow_left);
         params.addRule(BELOW, R.id.date_selected_text);
+        params.addRule(LEFT_OF, R.id.date_arrow_right);
         dateRecycler.setLayoutParams(params);
         dateRecycler.addItemDecoration(new DateRecycler.WeekDayLabelDecoration(context, RecyclerView.VERTICAL));
         addView(dateRecycler);
+
+        // Settings all the necessary listeners
+        leftArrow.setOnClickListener(this);
+        rightArrow.setOnClickListener(this);
+        addOnWeekChangedListener(mOnWeekChangedListener);
+
     }
 
     /**
-     * Sets the height and width for the viewgroup, so any changes to its children's layout params must be done here
+     * Sets the height and width for the ViewGroup, so any changes to its children's layout params must be done here
+     *
      * @param w
      * @param h
      * @param oldW
      * @param oldH
      */
+
     @Override
     protected void onSizeChanged(int w, int h, int oldW, int oldH) {
         super.onSizeChanged(w, h, oldW, oldH);
+
         RelativeLayout.LayoutParams params = new LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
         int padding = getResources().getDimensionPixelSize(R.dimen.std_padding);
         params.setMargins((w / 14) - (2 * padding), 0, padding, padding);
         params.addRule(CENTER_HORIZONTAL);
         dateSelected.setLayoutParams(params);
+
     }
 
     public void setAdapter(RecyclerView.Adapter adapter) {
@@ -122,8 +187,8 @@ public class DateView extends RelativeLayout {
         dateRecycler.scrollToPresent();
     }
 
-    public void setOnWeekChangedListener(OnWeekChangedListener listener) {
-        dateRecycler.setOnWeekChangedListener(listener);
+    public void addOnWeekChangedListener(OnWeekChangedListener listener) {
+        dateRecycler.addOnWeekChangedListener(listener);
     }
 
     public void scrollToPresent() {
@@ -146,16 +211,18 @@ public class DateView extends RelativeLayout {
 
     @Override
     public void onRestoreInstanceState(Parcelable state) {
+
         SavedState savedState = (SavedState) state;
         super.onRestoreInstanceState(((SavedState) state).getSuperState());
         WeekView.Day selectedDay = savedState.mSelectedDay;
         if (selectedDay != null) {
             dateRecycler.scrollToDay(selectedDay);
-            dateSelected.setText(selectedDay.toFormattedString());
+            dateSelected.setText(selectedDay.getMonthName());
         } else {
             Timber.v("Scrolling to present");
             dateRecycler.scrollToPresent();
         }
+
     }
 
     @Override
@@ -168,6 +235,22 @@ public class DateView extends RelativeLayout {
     protected void dispatchRestoreInstanceState(SparseArray<Parcelable> container) {
         /** See comment in {@link #dispatchSaveInstanceState(android.util.SparseArray)}  */
         super.dispatchThawSelfOnly(container);
+    }
+
+    @Override
+    public void onClick(View v) {
+
+        int pos = ((LinearLayoutManager) dateRecycler.getLayoutManager()).findFirstVisibleItemPosition();
+
+        if (v.getId() == R.id.date_arrow_left) {
+            // Can't scroll to negative positions
+            if(pos > -1) {
+                dateRecycler.smoothScrollToPosition(pos - 1);
+            }
+        } else if (v.getId() == R.id.date_arrow_right) {
+            dateRecycler.smoothScrollToPosition(pos+1);
+        }
+
     }
 
     protected static class SavedState extends BaseSavedState {
@@ -239,6 +322,11 @@ public class DateView extends RelativeLayout {
             }
         }
 
+        @Override
+        public long getItemId(int position) {
+            return super.getItemId(position);
+        }
+
         private void adjustWeekCount() {
             if (mMode == MODE_MONTH) {
                 int maxDay = mDateTime.dayOfMonth().withMaximumValue().getDayOfMonth();
@@ -262,6 +350,7 @@ public class DateView extends RelativeLayout {
         }
 
         int firstWeek;
+
         @Override
         public WeekViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.week_view_layout, parent, false);
@@ -282,7 +371,7 @@ public class DateView extends RelativeLayout {
             weekView.setStartDate(dateTime);
         }
 
-        private int getTranslatedWeekPosition(int position, int year) {
+        public int getTranslatedWeekPosition(int position, int year) {
             int maxWeeks;
             int translatedPos = position;
             if (mMode == MODE_YEAR) {
@@ -298,7 +387,7 @@ public class DateView extends RelativeLayout {
             return translatedPos;
         }
 
-        private int getYearForWeekPosition(int position) {
+        public int getYearForWeekPosition(int position) {
             int startYear = mDateTime.getYear();
             int actualYear = startYear;
             if (mOffset > 0) {
