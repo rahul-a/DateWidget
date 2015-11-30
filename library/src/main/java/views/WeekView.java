@@ -401,6 +401,10 @@ public abstract class WeekView extends View {
             date = dateTime.getDayOfMonth();
         }
 
+        public void setDate(int date){
+            this.date = date;
+        }
+
         public int getYear() {
             return year;
         }

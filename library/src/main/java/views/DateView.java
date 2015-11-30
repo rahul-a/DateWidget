@@ -12,8 +12,11 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.example.library.R;
@@ -52,25 +55,81 @@ public class DateView extends RelativeLayout implements View.OnClickListener {
     private TextView dateSelected;
     private DatePickerController mDatePickerController;
     private ImageView leftArrow, rightArrow;
+    private Spinner monthSpinner, yearSpinner;
+
+    private boolean flag = false;
 
     private OnWeekChangedListener mOnWeekChangedListener = new OnWeekChangedListener() {
         @Override
         public void onWeekChanged(int currentWeekOfWeekYear, int currentYear) {
 
             DateTime dateTime = new DateTime();
-            String monthName = dateTime.withWeekOfWeekyear(currentWeekOfWeekYear).withYear(currentWeekOfWeekYear).monthOfYear().getAsText();
-            dateSelected.setText(monthName);
-
+            String monthName = dateTime.withWeekOfWeekyear(currentWeekOfWeekYear).withYear(currentYear).monthOfYear().getAsText();
             WeekAdapter adapter = (WeekAdapter) dateRecycler.getAdapter();
 
-            if(currentWeekOfWeekYear == adapter.getItemCount()){
+            if (currentWeekOfWeekYear == adapter.getItemCount()) {
                 rightArrow.setEnabled(false);
-            } else if(currentWeekOfWeekYear == 0){
+            } else if (currentWeekOfWeekYear == 0) {
+                Timber.v("Left arrow disabled.");
                 leftArrow.setEnabled(false);
-            }else{
+            } else {
                 leftArrow.setEnabled(true);
                 rightArrow.setEnabled(true);
             }
+
+            dateSelected.setText(monthName);
+
+            // Getting position for the month
+            String[] monthNames = getResources().getStringArray(R.array.month_array);
+            int position = 0;
+            for (int i = 0; i < monthNames.length; i++) {
+                if (monthName.equalsIgnoreCase(monthNames[i])) {
+                    position = i;
+                    break;
+                }
+            }
+
+            setSpinnerSelectionWithoutCallingListener(monthSpinner, position);
+        }
+    };
+
+    private AdapterView.OnItemSelectedListener monthSelectedListener = new AdapterView.OnItemSelectedListener() {
+        @Override
+        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+            int currentDateOfMonth = dateRecycler.getSelectedDay().getDate();
+            int currentYear = dateRecycler.getSelectedDay().getYear();
+            String currentMonthName = dateRecycler.getSelectedDay().getMonthName();
+
+            DateTime dateTime = new DateTime();
+
+            int checkRange = new DateTime().withMonthOfYear(position + 1).dayOfMonth().getMaximumValue();
+
+            if (currentDateOfMonth > checkRange)
+                currentDateOfMonth = Math.min(currentDateOfMonth, checkRange);
+
+            DateTime temp = dateTime.withMonthOfYear(position + 1).withDayOfMonth(currentDateOfMonth).withYear(currentYear);
+            WeekView.Day dateToNavigate = new WeekView.Day(temp);
+
+            // Should not scroll for the first time
+            if (flag) {
+
+                if (dateToNavigate.getDate() > checkRange) {
+                    dateToNavigate.setDate(Math.min(dateToNavigate.getDate(), checkRange));
+                }
+
+                scrollToDay(dateToNavigate);
+
+            } else {
+                flag = true;
+            }
+
+            dateSelected.setText(currentMonthName);
+
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> parent) {
 
         }
     };
@@ -85,7 +144,6 @@ public class DateView extends RelativeLayout implements View.OnClickListener {
         RecyclerView.Adapter adapter = dateRecycler.getAdapter();
         if (adapter != null && adapter instanceof RecyclerView.Adapter) {
             WeekAdapter weekAdapter = (WeekAdapter) adapter;
-            Timber.v("Setting mode");
             weekAdapter.setMode(mode);
             weekAdapter.notifyDataSetChanged();
             dateRecycler.scrollToPresent();
@@ -96,12 +154,27 @@ public class DateView extends RelativeLayout implements View.OnClickListener {
 
     private void init(Context context, AttributeSet attrs) {
 
-        // Adding the selected month TextView
         RelativeLayout.LayoutParams params;
-        dateSelected = new TextView(context);
-        params = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
         int padding = getResources().getDimensionPixelSize(R.dimen.std_padding);
+
+        // Adding the monthSpinner View
+        monthSpinner = new Spinner(context);
+        monthSpinner.setId(R.id.month_spinner);
+        params = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        params.setMargins(0, 0, padding, 0);
+        monthSpinner.setLayoutParams(params);
+
+        ArrayAdapter<CharSequence> spinnerAdapter = ArrayAdapter.createFromResource(context, R.array.month_array, android.R.layout.simple_spinner_item);
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        monthSpinner.setAdapter(spinnerAdapter);
+        addView(monthSpinner);
+
+        // Adding the selected month TextView
+        dateSelected = new TextView(context);
+        params = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
         params.setMargins(padding, 0, padding, padding);
+        params.addRule(RIGHT_OF, R.id.month_spinner);
+        params.addRule(ALIGN_TOP, R.id.month_spinner);
         dateSelected.setLayoutParams(params);
         dateSelected.setPadding(0, 0, padding, padding);
         dateSelected.setTextSize(TypedValue.COMPLEX_UNIT_PX,
@@ -122,6 +195,7 @@ public class DateView extends RelativeLayout implements View.OnClickListener {
         params.addRule(ALIGN_BOTTOM, R.id.date_recycler_view);
         params.addRule(ALIGN_PARENT_LEFT);
         leftArrow.setLayoutParams(params);
+        leftArrow.setPadding(0, 0, padding, 0);
         addView(leftArrow);
 
         // Adding the right arrow
@@ -135,6 +209,7 @@ public class DateView extends RelativeLayout implements View.OnClickListener {
         params.addRule(ALIGN_BOTTOM, R.id.date_recycler_view);
         params.addRule(ALIGN_PARENT_RIGHT);
         rightArrow.setLayoutParams(params);
+        leftArrow.setPadding(padding, 0, 0, 0);
         addView(rightArrow);
 
         // Adding the WeekView
@@ -142,8 +217,7 @@ public class DateView extends RelativeLayout implements View.OnClickListener {
         dateRecycler.setId(R.id.date_recycler_view);
         dateRecycler.setHorizontalScrollBarEnabled(false);
         dateRecycler.setHasFixedSize(true);
-        params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,
-                getResources().getDimensionPixelSize(R.dimen.calendar_frame_height));
+        params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, getResources().getDimensionPixelSize(R.dimen.calendar_frame_height));
         params.addRule(RIGHT_OF, R.id.date_arrow_left);
         params.addRule(BELOW, R.id.date_selected_text);
         params.addRule(LEFT_OF, R.id.date_arrow_right);
@@ -151,10 +225,12 @@ public class DateView extends RelativeLayout implements View.OnClickListener {
         dateRecycler.addItemDecoration(new DateRecycler.WeekDayLabelDecoration(context, RecyclerView.VERTICAL));
         addView(dateRecycler);
 
-        // Settings all the necessary listeners
+        // Setting all the necessary listeners
         leftArrow.setOnClickListener(this);
         rightArrow.setOnClickListener(this);
         addOnWeekChangedListener(mOnWeekChangedListener);
+        monthSpinner.setOnItemSelectedListener(monthSelectedListener);
+        monthSpinner.setSelection(new DateTime().getMonthOfYear() - 1);
 
     }
 
@@ -177,6 +253,49 @@ public class DateView extends RelativeLayout implements View.OnClickListener {
         params.addRule(CENTER_HORIZONTAL);
         dateSelected.setLayoutParams(params);
 
+    }
+
+    /**
+     * Generates an array of years starting from the baseYear towards the past
+     *
+     * @param baseYear The starting year for the array
+     * @param count    The number of years to be generated
+     * @return Array of years
+     */
+    public Integer[] generateYearArray(int baseYear, int count) {
+        Integer years[] = new Integer[count];
+
+        int i = count, k = 0;
+
+        while (i > 0) {
+            years[k++] = baseYear--;
+            i--;
+        }
+
+        return years;
+    }
+
+    /**
+     * Sets a Spinner selection without firing its listener
+     *
+     * @param spinner The spinner whose selection needs to be changed
+     * @param selection The item that needs to be selected
+     */
+    private void setSpinnerSelectionWithoutCallingListener(final Spinner spinner, final int selection) {
+        final AdapterView.OnItemSelectedListener l = spinner.getOnItemSelectedListener();
+        spinner.setOnItemSelectedListener(null);
+        spinner.post(new Runnable() {
+            @Override
+            public void run() {
+                spinner.setSelection(selection);
+                spinner.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        spinner.setOnItemSelectedListener(l);
+                    }
+                });
+            }
+        });
     }
 
     public void setAdapter(RecyclerView.Adapter adapter) {
@@ -244,11 +363,11 @@ public class DateView extends RelativeLayout implements View.OnClickListener {
 
         if (v.getId() == R.id.date_arrow_left) {
             // Can't scroll to negative positions
-            if(pos > -1) {
+            if (pos > 0) {
                 dateRecycler.smoothScrollToPosition(pos - 1);
             }
         } else if (v.getId() == R.id.date_arrow_right) {
-            dateRecycler.smoothScrollToPosition(pos+1);
+            dateRecycler.smoothScrollToPosition(pos + 1);
         }
 
     }

@@ -3,12 +3,13 @@ package com.sample.datewidget;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import org.joda.time.DateTime;
 
 import controllers.DatePickerController;
-import timber.log.Timber;
 import views.DateView;
 import views.WeekView;
 
@@ -68,12 +69,20 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onDayOfMonthSelected(View view, WeekView.Day day) {
 
-            Timber.v("controller:: Day tapped: %s", day);
             mSelectedDay = day;
+
             TextView daySelectedText = (TextView) findViewById(R.id.date_selected_text);
             if (daySelectedText != null) {
                 daySelectedText.setText(mSelectedDay.getMonthName());
             }
+
+
+            Spinner monthSpinner = (Spinner) findViewById(R.id.month_spinner);
+            if (monthSpinner != null) {
+                //setSpinnerSelectionWithoutCallingListener(monthSpinner, mSelectedDay.getMonth() - 1);
+                monthSpinner.setSelection(mSelectedDay.getMonth()-1);
+            }
+
 
             // BottomSheetLayout bottomSheet = (BottomSheetLayout) findViewById(R.id.bottomsheet);
             // bottomSheet.showWithSheetView(LayoutInflater.from(view.getContext()).inflate(R.layout.activity_main, bottomSheet, false));
@@ -124,6 +133,30 @@ public class MainActivity extends AppCompatActivity {
         public WeekView.Day getStartDate() {
             return new WeekView.Day(new DateTime(2015, 2, 14, 0, 0, 0));
         }
+
+        /**
+         * Sets a Spinner selection without firing its listener
+         *
+         * @param spinner The spinner whose selection needs to be changed
+         * @param selection The item that needs to be selected
+         */
+        private void setSpinnerSelectionWithoutCallingListener(final Spinner spinner, final int selection) {
+            final AdapterView.OnItemSelectedListener l = spinner.getOnItemSelectedListener();
+            spinner.setOnItemSelectedListener(null);
+            spinner.post(new Runnable() {
+                @Override
+                public void run() {
+                    spinner.setSelection(selection);
+                    spinner.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            spinner.setOnItemSelectedListener(l);
+                        }
+                    });
+                }
+            });
+        }
+
     };
 
     private static final int DEFAULT_START_YEAR = 1900;
@@ -140,6 +173,10 @@ public class MainActivity extends AppCompatActivity {
     private WeekView.Day[] selectableDays = null;
     private int mAccentColor = -1;
 
+    public String monthName;
+    public int currentWeek;
+    public int currentYear;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -151,12 +188,27 @@ public class MainActivity extends AppCompatActivity {
             dateView.setViewMode(DateView.WeekAdapter.MODE_YEAR);
             dateView.addOnWeekChangedListener(new DateView.OnWeekChangedListener() {
                 @Override
-                public void onWeekChanged(int currentWeekOfWeekYear, int currentYear) {
-                    Timber.v("Position showing: %s", currentWeekOfWeekYear);
+                public void onWeekChanged(int currentWeekOfWeekYear, int currentY) {
+                    DateTime dateTime = new DateTime();
+                    monthName = dateTime.withWeekOfWeekyear(currentWeekOfWeekYear).withYear(currentY).monthOfYear().getAsText();
+                    currentWeek = currentWeekOfWeekYear;
+                    currentYear = currentY;
                 }
             });
         }
 
+    }
+
+    public int getCurrentWeek() {
+        return currentWeek;
+    }
+
+    public int getCurrentYear() {
+        return currentYear;
+    }
+
+    public String getMonthName() {
+        return monthName;
     }
 
     @Override
