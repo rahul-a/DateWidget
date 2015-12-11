@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <android.support.percent.PercentRelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true">
+
+        <RelativeLayout
+            android:id="@+id/checkin_container"
+            app:layout_widthPercent="33%"
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/checkin_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAllCaps="true"
+                android:textSize="@dimen/month_controller_extra_label_size"
+                android:text="@string/label_checkin"/>
+
+            <TextView
+                android:id="@+id/checkin_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/checkin_label"
+                android:textSize="@dimen/month_controller_month_date_size"
+                android:textStyle="bold"
+                android:minWidth="48dp"
+                android:gravity="center"
+                tools:text="2" />
+
+            <RelativeLayout
+                android:layout_below="@+id/checkin_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@+id/checkin_date"
+                android:layout_toRightOf="@+id/checkin_date" >
+
+                <TextView
+                    android:id="@+id/checkin_month_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginLeft="8dp"
+                    android:textSize="@dimen/month_controller_month_label_size"
+                    tools:text="April '15" />
+
+                <TextView
+                    android:id="@+id/checkin_day_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/checkin_month_label"
+                    android:layout_alignLeft="@+id/checkin_month_label"
+                    android:textSize="@dimen/month_controller_month_day_size"
+                    tools:text="Saturday" />
+
+            </RelativeLayout>
+        </RelativeLayout>
+
+        <View
+            android:id="@+id/divider"
+            android:layout_width="1dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_toRightOf="@+id/checkin_container"
+            android:background="#000000"
+            android:layout_alignTop="@+id/checkin_container"
+            android:layout_alignBottom="@+id/checkin_container" />
+
+        <RelativeLayout
+            android:id="@+id/checkout_container"
+            app:layout_widthPercent="33%"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/divider" >
+            <TextView
+                android:id="@+id/checkout_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAllCaps="true"
+                android:textSize="@dimen/month_controller_extra_label_size"
+                android:text="@string/label_checkout"/>
+
+            <TextView
+                android:id="@+id/checkout_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/checkout_label"
+                android:textSize="@dimen/month_controller_month_date_size"
+                android:textStyle="bold"
+                android:minWidth="48dp"
+                android:gravity="center"
+                tools:text="9" />
+
+            <RelativeLayout
+                android:layout_below="@+id/checkout_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@+id/checkout_date"
+                android:layout_toRightOf="@+id/checkout_date" >
+
+                <TextView
+                    android:id="@+id/checkout_month_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginLeft="8dp"
+                    android:textSize="@dimen/month_controller_month_label_size"
+                    tools:text="April '15" />
+
+                <TextView
+                    android:id="@+id/checkout_day_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/checkout_month_label"
+                    android:layout_alignLeft="@+id/checkout_month_label"
+                    android:textSize="@dimen/month_controller_month_day_size"
+                    tools:text="Saturday" />
+
+            </RelativeLayout>
+        </RelativeLayout>
+
+        <View
+            android:id="@+id/divider2"
+            android:layout_width="1dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_toRightOf="@+id/checkout_container"
+            android:background="#000000"
+            android:layout_alignTop="@+id/checkout_container"
+            android:layout_alignBottom="@+id/checkout_container" />
+
+        <RelativeLayout
+            android:id="@+id/room_nights_container"
+            app:layout_widthPercent="33%"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/divider2" >
+            <TextView
+                android:id="@+id/room_nights_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAllCaps="true"
+                android:textSize="@dimen/month_controller_extra_label_size"
+                android:text="@string/label_room_nights"/>
+
+            <TextView
+                android:id="@+id/room_nights_number"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/room_nights_label"
+                android:textSize="@dimen/month_controller_month_date_size"
+                android:textStyle="bold"
+
+                android:minWidth="48dp"
+                android:gravity="center"
+                android:layout_centerHorizontal="true"
+                tools:text="3" />
+        </RelativeLayout>
+    </android.support.percent.PercentRelativeLayout>
+
+</RelativeLayout>

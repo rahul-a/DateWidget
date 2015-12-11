@@ -9,6 +9,7 @@
         <attr name="selected_circle_color" format="color" />
         <attr name="date_size" format="dimension" />
         <attr name="selected_circle_size" format="dimension" />
+        <attr name="highlight_end_circle_size" format="dimension" />
         <attr name="day_label_size" format="dimension" />
         <attr name="day_separator_width" format="dimension" />
     </declare-styleable>

@@ -147,10 +147,10 @@ public class DateRecycler extends RecyclerView {
     }
 
     public void scrollToPresent() {
-        scrollToDay(new WeekView.Day());
+        scrollToDay(new Day());
     }
 
-    public void scrollToDay(final WeekView.Day day) {
+    public void scrollToDay(final Day day) {
         if (getAdapter() == null || !(getAdapter() instanceof DateView.WeekAdapter)) {
             throw new IllegalStateException("Must call setAdapter() before scrolling to a day");
         }
@@ -178,11 +178,11 @@ public class DateRecycler extends RecyclerView {
         }
     }
 
-    public WeekView.Day getSelectedDay() {
+    public Day getSelectedDay() {
         if (getAdapter() == null || !(getAdapter() instanceof DateView.WeekAdapter)) {
             throw new IllegalStateException("Must call setAdapter() before scrolling to a day");
         }
-        WeekView.Day selectedDay = null;
+        Day selectedDay = null;
         DateView.WeekAdapter weekAdapter = (DateView.WeekAdapter) getAdapter();
         DatePickerController controller = weekAdapter.getDateController();
         if (controller != null) {
@@ -240,7 +240,7 @@ public class DateRecycler extends RecyclerView {
             for (int i = 0; i < childCount; i++) {
                 final View child = parent.getChildAt(i);
                 View childView = child.findViewById(R.id.week_view);
-                WeekView.Day[] days = null;
+                Day[] days = null;
                 if (days == null && childView instanceof WeekView) {
                     WeekView weekView = (WeekView) childView;
                     days = weekView.getDaysInWeek();

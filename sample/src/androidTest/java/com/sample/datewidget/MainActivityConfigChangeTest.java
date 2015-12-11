@@ -9,7 +9,7 @@ import junit.framework.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 
-import views.WeekView;
+import views.Day;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
@@ -29,7 +29,7 @@ public class MainActivityConfigChangeTest {
     public void clickItem() {
         MainActivity mainActivity = mActivityRule.getActivity();
 
-        WeekView.Day selectedDay = mainActivity.getSelectedDay();
+        Day selectedDay = mainActivity.getSelectedDay();
 
         onView(isRoot()).perform(OrientationChangeAction.orientationLandscape());
         checkDay(mainActivity, selectedDay);
@@ -38,7 +38,7 @@ public class MainActivityConfigChangeTest {
         checkDay(mainActivity, selectedDay);
     }
 
-    private void checkDay(MainActivity mainActivity, WeekView.Day selectedDay) {
+    private void checkDay(MainActivity mainActivity, Day selectedDay) {
         Assert.assertEquals("Selected day has changed", selectedDay, mainActivity.getSelectedDay());
 
         onView(withId(R.id.date_selected_text))

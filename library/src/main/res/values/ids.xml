@@ -2,4 +2,6 @@
 <resources>
     <item name="date_recycler_view" type="id" />
     <item name="date_selected_text" type="id" />
+    <item name="month_controller" type="id" />
+    <item name="month_recycler_view" type="id" />
 </resources>

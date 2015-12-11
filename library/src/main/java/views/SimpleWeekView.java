@@ -6,7 +6,6 @@ import android.graphics.Typeface;
 import android.util.AttributeSet;
 
 import controllers.DatePickerController;
-import timber.log.Timber;
 
 /**
  * Created by priyabratapatnaik on 03/11/15.
@@ -28,7 +27,7 @@ public class SimpleWeekView extends WeekView {
     @Override
     public void drawWeekDate(Canvas canvas, Day day,
                              int x, int y, int startX, int stopX, int startY, int stopY) {
-        WeekView.Day selectedDay = mController == null ? null : mController.getSelectedDay();
+        Day selectedDay = mController == null ? null : mController.getSelectedDay();
 
         if (selectedDay != null && selectedDay.equals(day)) {
             canvas.drawCircle(x , y - (mDateTextSize / 3), mSelectedDayCircleSize,
@@ -36,6 +35,8 @@ public class SimpleWeekView extends WeekView {
         }
 
         if (isHighlighted(day)) {
+            canvas.drawCircle(x , y - (mDateTextSize / 3), mSelectedDayCircleSize,
+                    mSelectedCirclePaint);
             mMonthNumPaint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
         } else {
             mMonthNumPaint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.NORMAL));

@@ -19,7 +19,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import views.WeekView;
+import views.Day;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
@@ -50,7 +50,7 @@ public class MainActivityDateWidgetBehaviorTest {
         int dayLabelTextSize = res.getDimensionPixelSize(R.dimen.mdtp_day_number_size);
         int y = weekHeaderSize - (dayLabelTextSize) / 2;
 
-        WeekView.Day selectedDay;
+        Day selectedDay;
         for (int j = 0; j < count; j++) {
             onView(withId(R.id.date_recycler_view)).perform(RecyclerViewActions.scrollToPosition(j));
 

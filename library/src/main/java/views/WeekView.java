@@ -5,11 +5,8 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
-import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -19,7 +16,6 @@ import com.example.library.R;
 import org.joda.time.DateTime;
 
 import controllers.DatePickerController;
-import timber.log.Timber;
 
 /**
  * Created by priyabratapatnaik on 03/11/15.
@@ -28,7 +24,7 @@ public abstract class WeekView extends View {
 
     private static final String TAG = WeekView.class.getSimpleName();
 
-    protected static final int MAX_NUM_ROWS = 1;
+    protected int mMaxRows = 1;
     protected static final int DEFAULT_SELECTED_DAY = -1;
     protected static final int DEFAULT_NUM_DAYS = 7;
 
@@ -40,6 +36,7 @@ public abstract class WeekView extends View {
     protected int mDefaultHeight = 32;
     protected int mWeekDayHeaderSize;
     protected int mMinHeight = 10;
+    protected DateTime mStartDate;
 
     protected int mSelectedDayCircleSize;
 
@@ -137,13 +134,11 @@ public abstract class WeekView extends View {
 
         mWeekDayHeaderSize = res.getDimensionPixelOffset(R.dimen.mdtp_month_list_item_header_height);
 
-        mDayNumFrameHeight = (res.getDimensionPixelOffset(R.dimen.mdtp_month_row_height)) / MAX_NUM_ROWS;
+        mDayNumFrameHeight = (res.getDimensionPixelOffset(R.dimen.mdtp_month_row_height)) * mMaxRows;
 
         // Sets up any standard paints that will be used
         initView();
         getDayNumbers();
-
-        Day currentDay = mController == null ? new Day(mToday, mMonth, mYear) : mController.getToday();
 
         findToday();
 
@@ -181,9 +176,7 @@ public abstract class WeekView extends View {
         }
     }
 
-    private DateTime mStartDate;
-
-    private int[] getDayNumbers() {
+    protected int[] getDayNumbers() {
         int[] days = new int[7];
         DateTime startDate;
         if (mStartDate != null) {
@@ -219,7 +212,7 @@ public abstract class WeekView extends View {
      * @param startY  The top boundary of the day number rect
      * @param stopY  The bottom boundary of the day number rect
      */
-    public abstract void drawWeekDate(Canvas canvas, Day day, int x, int y, int startX, int stopX, int startY, int stopY);
+    protected abstract void drawWeekDate(Canvas canvas, Day day, int x, int y, int startX, int stopX, int startY, int stopY);
 
     @Override
     protected void onDraw(Canvas canvas) {
@@ -336,7 +329,6 @@ public abstract class WeekView extends View {
                 return true;
             }
         }
-        Timber.v(String.format("NOT Highlighted:: day: %s, month: %s, year: %s", day.getDate(), day.getMonth(), day.getYear()));
         return false;
     }
 
@@ -368,137 +360,6 @@ public abstract class WeekView extends View {
             String weekString = mDays[i].getDay().toUpperCase().substring(0, 3);
             canvas.drawText(weekString, x, y, mMonthDayLabelPaint);
         }
-    }
-
-    public static class Day implements Parcelable {
-        int year;
-        int month;
-        String day;
-        int date;
-        String monthName;
-
-        public Day(DateTime dateTime) {
-            year = dateTime.getYear();
-            month = dateTime.getMonthOfYear();
-            monthName = dateTime.monthOfYear().getAsText();
-            day = dateTime.dayOfWeek().getAsShortText();
-            date = dateTime.getDayOfMonth();
-        }
-
-        public Day(int date, int month, int year) {
-            this.date = date;
-            this.month = month;
-            this.year = year;
-        }
-
-        public Day() {
-            DateTime dateTime = new DateTime();
-            year = dateTime.getYear();
-            month = dateTime.getMonthOfYear();
-            monthName = dateTime.monthOfYear().getAsText();
-            day = dateTime.dayOfWeek().getAsShortText();
-            date = dateTime.getDayOfMonth();
-        }
-
-        public int getYear() {
-            return year;
-        }
-
-        public int getMonth() {
-            return month;
-        }
-
-        public String getDay() {
-            return day;
-        }
-
-        public int getDate() {
-            return date;
-        }
-
-        public String getMonthName() {
-            return monthName;
-        }
-
-        public DateTime toDateTime() {
-            if (date == 0 || month == 0 || year == 0) {
-                return new DateTime();
-            }
-
-            return new DateTime(year, month, date, 0, 0, 0);
-        }
-
-        @Override
-        public String toString() {
-            return String.format("Date: %s, Day: %s, Month: %s, Year: %s", date, day, month, year);
-        }
-
-        @Override
-        public boolean equals(Object object) {
-            if (this == null || object == null || !(object instanceof Day)) {
-                return false;
-            }
-
-            Day other = (Day) object;
-            if (year == other.getYear()) {
-                if (month == other.getMonth()) {
-                    if (date == other.getDate()) {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-
-        public String toFormattedString() {
-            if (isEmpty()) {
-                return null;
-            }
-            return String.format("%s %s, %s", monthName, date, year);
-        }
-
-        public boolean isEmpty() {
-            if (date == 0 && month == 0 && year == 0) {
-                return true;
-            }
-            if (TextUtils.isEmpty(monthName) || TextUtils.isEmpty(day)) {
-                return true;
-            }
-
-            return false;
-        }
-
-        @Override
-        public int describeContents() {
-            return 0;
-        }
-
-        @Override
-        public void writeToParcel(Parcel dest, int flags) {
-            dest.writeInt(this.year);
-            dest.writeInt(this.month);
-            dest.writeString(this.day);
-            dest.writeInt(this.date);
-            dest.writeString(this.monthName);
-        }
-
-        protected Day(Parcel in) {
-            this.year = in.readInt();
-            this.month = in.readInt();
-            this.day = in.readString();
-            this.date = in.readInt();
-            this.monthName = in.readString();
-        }
-
-        public static final Parcelable.Creator<Day> CREATOR = new Parcelable.Creator<Day>() {
-            public Day createFromParcel(Parcel source) {
-                return new Day(source);
-            }
-
-            public Day[] newArray(int size) {
-                return new Day[size];
-            }
-        };
     }
 
     public Day[] getDaysInWeek() {
@@ -538,7 +399,7 @@ public abstract class WeekView extends View {
         return false;
     }
 
-    private void findToday() {
+    protected void findToday() {
         mHasToday = false;
         Day currentDay = mController == null ? new Day() : mController.getToday();
         for (int i = 0; i < mDays.length; i++) {

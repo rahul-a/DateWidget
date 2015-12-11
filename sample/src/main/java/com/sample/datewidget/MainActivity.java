@@ -2,7 +2,6 @@ package com.sample.datewidget;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 
@@ -13,7 +12,8 @@ import org.joda.time.DateTime;
 import controllers.DatePickerController;
 import timber.log.Timber;
 import views.DateView;
-import views.WeekView;
+import views.Day;
+import views.month.MonthDateView;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        public WeekView.Day[] getSelectableDays() {
+        public Day[] getSelectableDays() {
             return null;
         }
 
@@ -39,8 +39,8 @@ public class MainActivity extends AppCompatActivity {
          * @return The list of dates, as Calendar Objects, which should be highlighted. null is no dates should be highlighted
          */
         @Override
-        public WeekView.Day[] getHighlightedDays() {
-            return null;
+        public Day[] getHighlightedDays() {
+            return new Day[] { new Day(2, 2, 2015), new Day(3, 2, 2015), new Day(4, 2, 2015), new Day(5, 2, 2015), new Day(6, 2, 2015)};
         }
 
         /**
@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
          * Integer.MAX_VALUE.
          */
         @Override
-        public boolean isOutOfRange(WeekView.Day day) {
+        public boolean isOutOfRange(Day day) {
             if (selectableDays != null) {
                 return !isSelectable(day);
             }
@@ -69,9 +69,9 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onDayOfMonthSelected(View view, WeekView.Day day) {
+        public void onDayOfMonthSelected(View view, Day day) {
             Timber.v("controller:: Day tapped: %s", day);
-            mSelectedDay = day;
+            mCheckoutDay = day;
             TextView daySelectedText = (TextView) findViewById(R.id.date_selected_text);
             if (daySelectedText != null) {
                 daySelectedText.setText(day.toFormattedString());
@@ -81,9 +81,19 @@ public class MainActivity extends AppCompatActivity {
             // bottomSheet.showWithSheetView(LayoutInflater.from(view.getContext()).inflate(R.layout.activity_main, bottomSheet, false));
         }
 
+        @Override
+        public void onCheckinDaySelected(View view, Day day) {
+            mCheckinDay = day;
+        }
 
         @Override
-        public WeekView.Day getSelectedDay() {
+        public void onCheckoutDaySelected(View view, Day day) {
+            mCheckoutDay = day;
+        }
+
+
+        @Override
+        public Day getSelectedDay() {
             return mSelectedDay;
         }
 
@@ -106,9 +116,9 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        public boolean isSelectable(WeekView.Day day) {
+        public boolean isSelectable(Day day) {
             if (selectableDays != null) {
-                for (WeekView.Day tempDay : selectableDays) {
+                for (Day tempDay : selectableDays) {
                     if (tempDay.equals(day)) {
                         return true;
                     }
@@ -118,34 +128,46 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        public WeekView.Day getToday() {
-            return new WeekView.Day(new DateTime());
+        public Day getToday() {
+            return new Day(new DateTime());
         }
 
         @Override
-        public WeekView.Day getStartDate() {
-            return new WeekView.Day(new DateTime(2015, 2, 14, 0, 0, 0));
+        public Day getStartDate() {
+            return new Day(new DateTime(2015, 2, 14, 0, 0, 0));
+        }
+
+        @Override
+        public Day getCheckinDay() {
+            return mCheckinDay;
+        }
+
+        @Override
+        public Day getCheckoutDay() {
+            return mCheckoutDay;
         }
     };
 
     private static final int DEFAULT_START_YEAR = 1900;
     private static final int DEFAULT_END_YEAR = 2100;
 
-    private WeekView.Day mSelectedDay;
+    private Day mSelectedDay;
+    private Day mCheckoutDay;
+    private Day mCheckinDay;
 
     private int mMinYear = DEFAULT_START_YEAR;
     private int mMaxYear = DEFAULT_END_YEAR;
     private String mTitle;
     private DateTime mMinDate;
     private DateTime mMaxDate;
-    private WeekView.Day[] highlightedDays;
-    private WeekView.Day[] selectableDays = null;
+    private Day[] highlightedDays;
+    private Day[] selectableDays = null;
     private int mAccentColor = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_recycler_week);
+        setContentView(R.layout.sample_main);
 
         DateView dateView = (DateView) findViewById(R.id.date_view);
         if (dateView != null) {
@@ -158,6 +180,9 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         }
+
+        MonthDateView monthView = (MonthDateView) findViewById(R.id.month_view);
+        monthView.setDateController(mDatePickerController);
     }
 
     @Override
@@ -165,21 +190,21 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
-    private boolean isAfterMax(WeekView.Day day) {
+    private boolean isAfterMax(Day day) {
         if (day == null || mMaxDate == null) {
             return false;
         }
         return day.toDateTime().withTimeAtStartOfDay().isAfter(mMaxDate);
     }
 
-    private boolean isBeforeMin(WeekView.Day day) {
+    private boolean isBeforeMin(Day day) {
         if (day == null || mMinDate == null) {
             return false;
         }
         return day.toDateTime().withTimeAtStartOfDay().isBefore(mMinDate);
     }
 
-    public WeekView.Day getSelectedDay() {
-        return mSelectedDay;
+    public Day getSelectedDay() {
+        return mCheckoutDay;
     }
 }

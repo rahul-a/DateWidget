@@ -19,8 +19,8 @@ import com.example.library.R;
 import org.joda.time.DateTime;
 
 import controllers.DatePickerController;
-import utils.Utils;
 import timber.log.Timber;
+import utils.Utils;
 
 /**
  * Created by priyabratapatnaik on 12/11/15.
@@ -50,9 +50,105 @@ public class DateView extends LinearLayout {
     private TextView dateSelected;
     private DatePickerController mDatePickerController;
 
+    private DatePickerController mInternalDateController = new DatePickerController() {
+        @Override
+        public void onDayOfMonthSelected(View view, Day day) {
+            TextView daySelectedText = (TextView) findViewById(R.id.date_selected_text);
+            if (daySelectedText != null) {
+                daySelectedText.setText(day.toFormattedString());
+            }
+            if (mDatePickerController != null) {
+                mDatePickerController.onDayOfMonthSelected(view, day);
+            }
+            mSelectedDay = day;
+        }
+
+        @Override
+        public void onCheckinDaySelected(View view, Day day) {
+            if (mDatePickerController != null) {
+                mDatePickerController.onCheckinDaySelected(view, day);
+            }
+        }
+
+        @Override
+        public void onCheckoutDaySelected(View view, Day day) {
+            if (mDatePickerController != null) {
+                mDatePickerController.onCheckoutDaySelected(view, day);
+            }
+        }
+
+        @Override
+        public Day getSelectedDay() {
+            return mSelectedDay;
+        }
+
+        @Override
+        public int getAccentColor() {
+            return 0;
+        }
+
+        @Override
+        public Day[] getHighlightedDays() {
+            return new Day[0];
+        }
+
+        @Override
+        public Day[] getSelectableDays() {
+            return new Day[0];
+        }
+
+        @Override
+        public int getMinYear() {
+            return 0;
+        }
+
+        @Override
+        public int getMaxYear() {
+            return 0;
+        }
+
+        @Override
+        public boolean isOutOfRange(Day day) {
+            return false;
+        }
+
+        @Override
+        public void tryVibrate() {
+
+        }
+
+        @Override
+        public boolean isSelectable(Day day) {
+            return false;
+        }
+
+        @Override
+        public Day getToday() {
+            return mToday;
+        }
+
+        @Override
+        public Day getStartDate() {
+            return mToday;
+        }
+
+        @Override
+        public Day getCheckinDay() {
+            return null;
+        }
+
+        @Override
+        public Day getCheckoutDay() {
+            return null;
+        }
+    };
+
+    private Day mToday = new Day();
+    private Day mSelectedDay = mToday;
+
     public void setDateController(DatePickerController controller) {
         mDatePickerController = controller;
-        WeekAdapter weekAdapter = new DateView.WeekAdapter(mDatePickerController);
+        WeekAdapter weekAdapter = new DateView.WeekAdapter(mInternalDateController);
         setAdapter(weekAdapter);
     }
 
@@ -121,7 +217,7 @@ public class DateView extends LinearLayout {
         dateRecycler.scrollToPresent();
     }
 
-    public void scrollToDay(WeekView.Day day) {
+    public void scrollToDay(Day day) {
         dateRecycler.scrollToDay(day);
     }
 
@@ -139,7 +235,7 @@ public class DateView extends LinearLayout {
     public void onRestoreInstanceState(Parcelable state) {
         SavedState savedState = (SavedState) state;
         super.onRestoreInstanceState(((SavedState) state).getSuperState());
-        WeekView.Day selectedDay = savedState.mSelectedDay;
+        Day selectedDay = savedState.mSelectedDay;
         if (selectedDay != null) {
             dateRecycler.scrollToDay(selectedDay);
             dateSelected.setText(selectedDay.toFormattedString());
@@ -162,14 +258,14 @@ public class DateView extends LinearLayout {
     }
 
     protected static class SavedState extends BaseSavedState {
-        WeekView.Day mSelectedDay;
+        Day mSelectedDay;
 
         public SavedState(Parcel source) {
             super(source);
-            mSelectedDay = source.readParcelable(WeekView.Day.class.getClassLoader());
+            mSelectedDay = source.readParcelable(Day.class.getClassLoader());
         }
 
-        public SavedState(Parcelable superState, WeekView.Day selectedDay) {
+        public SavedState(Parcelable superState, Day selectedDay) {
             super(superState);
             mSelectedDay = selectedDay;
         }
@@ -207,13 +303,13 @@ public class DateView extends LinearLayout {
         private DateTime mDateTime;
         private int mWeekCount;
         private int mOffset;
+        private int firstWeek;
         private int mMode = MODE_YEAR;
 
         public WeekAdapter(DatePickerController controller) {
             mController = controller;
-            mDateTime = new DateTime();
-            int presentYear = mDateTime.getYear();
             mDateTime = mController == null ? new DateTime() : mController.getStartDate().toDateTime();
+            int presentYear = mDateTime.getYear();
             mOffset = presentYear - mDateTime.getYear();
             adjustWeekCount();
         }
@@ -252,7 +348,6 @@ public class DateView extends LinearLayout {
             }
         }
 
-        int firstWeek;
         @Override
         public WeekViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.week_view_layout, parent, false);
@@ -339,8 +434,8 @@ public class DateView extends LinearLayout {
             return mController;
         }
 
-        public WeekView.Day getStartDay() {
-            return new WeekView.Day(mDateTime);
+        public Day getStartDay() {
+            return new Day(mDateTime);
         }
 
         /**
