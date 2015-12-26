@@ -289,10 +289,9 @@ public class DateView extends RelativeLayout implements View.OnClickListener {
         leftArrow.setImageResource(R.drawable.arrow_left);
         leftArrow.setAdjustViewBounds(true);
         params = new RelativeLayout.LayoutParams(getResources().getDimensionPixelSize(R.dimen.arrow_width), getResources().getDimensionPixelSize(R.dimen.arrow_height));
-        params.addRule(BELOW, R.id.date_selected_text);
-        params.addRule(ALIGN_TOP, R.id.date_recycler_view);
-        params.addRule(ALIGN_BOTTOM, R.id.date_recycler_view);
         params.addRule(ALIGN_PARENT_LEFT);
+        params.topMargin = getResources().getDimensionPixelSize(R.dimen.top_arrow_margin);
+        params.leftMargin = getResources().getDimensionPixelSize(R.dimen.left_arrow_margin);
         leftArrow.setLayoutParams(params);
         leftArrow.setPadding(padding, padding, padding, padding);
         addView(leftArrow);
@@ -303,9 +302,8 @@ public class DateView extends RelativeLayout implements View.OnClickListener {
         rightArrow.setImageResource(R.drawable.arrow_right);
         rightArrow.setAdjustViewBounds(true);
         params = new RelativeLayout.LayoutParams(getResources().getDimensionPixelSize(R.dimen.arrow_width), getResources().getDimensionPixelSize(R.dimen.arrow_height));
-        params.addRule(BELOW, R.id.date_selected_text);
-        params.addRule(ALIGN_TOP, R.id.date_recycler_view);
-        params.addRule(ALIGN_BOTTOM, R.id.date_recycler_view);
+        params.topMargin = getResources().getDimensionPixelSize(R.dimen.top_arrow_margin);
+        params.rightMargin = getResources().getDimensionPixelSize(R.dimen.left_arrow_margin);
         params.addRule(ALIGN_PARENT_RIGHT);
         rightArrow.setLayoutParams(params);
         rightArrow.setPadding(padding, padding, padding, padding);
