@@ -73,7 +73,9 @@ public class DateView extends RelativeLayout implements View.OnClickListener {
                 rightArrow.setEnabled(true);
             }
 
-            dateSelected.setText(monthName);
+            if (dateSelected != null) {
+                dateSelected.setText(monthName);
+            }
 
             // Getting position for the month
             String[] monthNames = getResources().getStringArray(R.array.month_array);
@@ -120,7 +122,9 @@ public class DateView extends RelativeLayout implements View.OnClickListener {
                 flag = true;
             }
 
-            dateSelected.setText(currentMonthName);
+            if (dateSelected != null) {
+                dateSelected.setText(currentMonthName);
+            }
 
         }
 
@@ -428,7 +432,9 @@ public class DateView extends RelativeLayout implements View.OnClickListener {
         Day selectedDay = savedState.mSelectedDay;
         if (selectedDay != null) {
             dateRecycler.scrollToDay(selectedDay);
-            dateSelected.setText(selectedDay.getMonthName());
+            if (dateSelected != null) {
+                dateSelected.setText(selectedDay.getMonthName());
+            }
         } else {
             Timber.v("Scrolling to present");
             dateRecycler.scrollToPresent();
