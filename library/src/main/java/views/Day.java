@@ -39,6 +39,10 @@ public class Day implements Parcelable {
         date = dateTime.getDayOfMonth();
     }
 
+    public void setDate(int date) {
+        this.date = date;
+    }
+
     public int getYear() {
         return year;
     }

@@ -48,4 +48,11 @@ dependencies {
     compile 'com.jakewharton.timber:timber:4.1.0'
     compile 'net.danlew:android.joda:2.8.1'
     compile 'com.android.support:percent:23.1.1'
+
+    androidTestCompile 'com.android.support:support-annotations:23.1.1'
+    androidTestCompile 'com.android.support.test:runner:0.4.1'
+    androidTestCompile 'com.android.support.test:rules:0.4.1'
+    androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2.1'
+    androidTestCompile 'com.android.support.test.espresso:espresso-intents:2.2'
+    androidTestCompile 'org.hamcrest:hamcrest-library:1.3'
 }

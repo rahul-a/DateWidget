@@ -4,4 +4,8 @@
     <item name="date_selected_text" type="id" />
     <item name="month_controller" type="id" />
     <item name="month_recycler_view" type="id" />
+    <item name="date_arrow_left" type="id" />
+    <item name="date_arrow_right" type="id" />
+    <item name="month_spinner" type="id" />
+    <item name="year_spinner" type="id" />
 </resources>

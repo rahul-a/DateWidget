@@ -19,6 +19,6 @@
     <dimen name="month_controller_month_day_size">12sp</dimen>
     <dimen name="month_controller_extra_label_size">14sp</dimen>
     <dimen name="month_controller_status_height">48dp</dimen>
-
-
+    <dimen name="arrow_width">32dp</dimen>
+    <dimen name="arrow_height">24dp</dimen>
 </resources>

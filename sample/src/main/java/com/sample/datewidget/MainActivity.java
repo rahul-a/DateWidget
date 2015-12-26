@@ -3,9 +3,9 @@ package com.sample.datewidget;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.Spinner;
 import android.widget.TextView;
-
-import com.flipboard.bottomsheet.BottomSheetLayout;
 
 import org.joda.time.DateTime;
 
@@ -72,12 +72,21 @@ public class MainActivity extends AppCompatActivity {
         public void onDayOfMonthSelected(View view, Day day) {
             Timber.v("controller:: Day tapped: %s", day);
             mCheckoutDay = day;
-            TextView daySelectedText = (TextView) findViewById(R.id.date_selected_text);
+            mSelectedDay = day;
+            TextView daySelectedText = (TextView) view.findViewById(R.id.date_selected_text);
             if (daySelectedText != null) {
-                daySelectedText.setText(day.toFormattedString());
+                daySelectedText.setText(mSelectedDay.getMonthName());
             }
 
-            BottomSheetLayout bottomSheet = (BottomSheetLayout) findViewById(R.id.bottomsheet);
+
+            Spinner monthSpinner = (Spinner) view.findViewById(R.id.month_spinner);
+            if (monthSpinner != null) {
+                //setSpinnerSelectionWithoutCallingListener(monthSpinner, mSelectedDay.getMonth() - 1);
+                monthSpinner.setSelection(mSelectedDay.getMonth()-1);
+            }
+
+
+            // BottomSheetLayout bottomSheet = (BottomSheetLayout) findViewById(R.id.bottomsheet);
             // bottomSheet.showWithSheetView(LayoutInflater.from(view.getContext()).inflate(R.layout.activity_main, bottomSheet, false));
         }
 
@@ -146,6 +155,30 @@ public class MainActivity extends AppCompatActivity {
         public Day getCheckoutDay() {
             return mCheckoutDay;
         }
+
+        /**
+         * Sets a Spinner selection without firing its listener
+         *
+         * @param spinner The spinner whose selection needs to be changed
+         * @param selection The item that needs to be selected
+         */
+        private void setSpinnerSelectionWithoutCallingListener(final Spinner spinner, final int selection) {
+            final AdapterView.OnItemSelectedListener l = spinner.getOnItemSelectedListener();
+            spinner.setOnItemSelectedListener(null);
+            spinner.post(new Runnable() {
+                @Override
+                public void run() {
+                    spinner.setSelection(selection);
+                    spinner.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            spinner.setOnItemSelectedListener(l);
+                        }
+                    });
+                }
+            });
+        }
+
     };
 
     private static final int DEFAULT_START_YEAR = 1900;
@@ -164,6 +197,10 @@ public class MainActivity extends AppCompatActivity {
     private Day[] selectableDays = null;
     private int mAccentColor = -1;
 
+    public String monthName;
+    public int currentWeek;
+    public int currentYear;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -172,17 +209,32 @@ public class MainActivity extends AppCompatActivity {
         DateView dateView = (DateView) findViewById(R.id.date_view);
         if (dateView != null) {
             dateView.setDateController(mDatePickerController);
-            dateView.setViewMode(DateView.WeekAdapter.MODE_MONTH);
-            dateView.setOnWeekChangedListener(new DateView.OnWeekChangedListener() {
+            dateView.setViewMode(DateView.WeekAdapter.MODE_YEAR);
+            dateView.addOnWeekChangedListener(new DateView.OnWeekChangedListener() {
                 @Override
-                public void onWeekChanged(int currentWeekOfWeekYear) {
-                    Timber.v("Position showing: %s", currentWeekOfWeekYear);
+                public void onWeekChanged(int currentWeekOfWeekYear, int currentY) {
+                    DateTime dateTime = new DateTime();
+                    monthName = dateTime.withWeekOfWeekyear(currentWeekOfWeekYear).withYear(currentY).monthOfYear().getAsText();
+                    currentWeek = currentWeekOfWeekYear;
+                    currentYear = currentY;
                 }
             });
         }
 
         MonthDateView monthView = (MonthDateView) findViewById(R.id.month_view);
         monthView.setDateController(mDatePickerController);
+    }
+
+    public int getCurrentWeek() {
+        return currentWeek;
+    }
+
+    public int getCurrentYear() {
+        return currentYear;
+    }
+
+    public String getMonthName() {
+        return monthName;
     }
 
     @Override

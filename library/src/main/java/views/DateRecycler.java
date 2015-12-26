@@ -12,11 +12,12 @@ import android.view.ViewGroup;
 
 import com.example.library.R;
 
-import controllers.DatePickerController;
-import utils.SmoothLinearLayoutManager;
-import utils.RecyclerViewUtils;
+import java.util.ArrayList;
 
+import controllers.DatePickerController;
 import timber.log.Timber;
+import utils.RecyclerViewUtils;
+import utils.SmoothLinearLayoutManager;
 
 /**
  * Created by priyabratapatnaik on 10/11/15.
@@ -35,7 +36,7 @@ public class DateRecycler extends RecyclerView {
     private RecyclerViewUtils mRecyclerViewUtils;
     private boolean mHasUpdatedSnappyRecyclerViewHelper;
 
-    private DateView.OnWeekChangedListener mOnWeekChangedListener;
+    private ArrayList<DateView.OnWeekChangedListener> mOnWeekChangedListeners = new ArrayList<>();
 
     private Paint mMonthDayLabelPaint = new Paint();
 
@@ -85,12 +86,21 @@ public class DateRecycler extends RecyclerView {
 
     @Override
     public void smoothScrollToPosition(int position) {
-        if (mOnWeekChangedListener != null && mCurrentPosition != RecyclerView.NO_POSITION && mSmoothScrollTargetPosition != position) {
-            mOnWeekChangedListener.onWeekChanged(position);
+
+        // Dispatching events to multiple listeners
+        if (mOnWeekChangedListeners != null && mCurrentPosition != RecyclerView.NO_POSITION && mSmoothScrollTargetPosition != position) {
+
+            DateView.WeekAdapter weekAdapter = (DateView.WeekAdapter) getAdapter();
+            int yearFromPos = weekAdapter.getYearForWeekPosition(position);
+            int correctPosition = weekAdapter.getTranslatedWeekPosition(position, yearFromPos);
+
+            for(DateView.OnWeekChangedListener listener: mOnWeekChangedListeners)
+                listener.onWeekChanged(correctPosition, yearFromPos);
         }
         mCurrentPosition = mSmoothScrollTargetPosition = position;
         super.smoothScrollToPosition(position);
     }
+
 
     // 1.SCROLL_STATE_DRAGGING -> SCROLL_STATE_IDLE (When the user let go, the view did not scroll)
     // 2.SCROLL_STATE_DRAGGING -> SCROLL_STATE_SETTLING (It will trigger onFling method) ->
@@ -144,8 +154,8 @@ public class DateRecycler extends RecyclerView {
         }
     }
 
-    public void setOnWeekChangedListener(DateView.OnWeekChangedListener listener) {
-        mOnWeekChangedListener = listener;
+    public void addOnWeekChangedListener(DateView.OnWeekChangedListener listener) {
+        mOnWeekChangedListeners.add(listener);
     }
 
     public void scrollToPresent() {

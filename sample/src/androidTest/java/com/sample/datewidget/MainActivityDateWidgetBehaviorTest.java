@@ -67,7 +67,7 @@ public class MainActivityDateWidgetBehaviorTest {
                 Assert.assertEquals("Day of week is not same", dayOfWeek, selectedDay.getDay());
 
                 onView(withId(R.id.date_selected_text))
-                        .check(matches(withText(selectedDay.toFormattedString())))
+                        .check(matches(withText(selectedDay.getMonthName())))
                         .check(matches(isDisplayed()));
             }
         }
