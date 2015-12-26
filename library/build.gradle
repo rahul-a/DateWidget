@@ -6,7 +6,7 @@ publishing {
         maven(MavenPublication) {
             groupId 'com.treebo.date'
             artifactId 'date-widget'
-            version '1.1'
+            version '1.2'
             artifact("$buildDir/outputs/aar/library-release.aar")
         }
     }
