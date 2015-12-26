@@ -193,6 +193,9 @@ public class DateView extends RelativeLayout implements View.OnClickListener {
 
         @Override
         public boolean isOutOfRange(Day day) {
+            if (mDatePickerController != null) {
+                return mDatePickerController.isOutOfRange(day);
+            }
             return false;
         }
 
