@@ -101,6 +101,7 @@ public class DateRecycler extends RecyclerView {
     //
     // It indicates that the ChildView has shifted a good position, then SCROLL_STATE_IDLE time, it does not deal with the position shifted
     // smoothScrollToPosition Triggers SCROLL_STATE_SETTLING state
+
     @Override
     public void onScrollStateChanged(int state) {
         super.onScrollStateChanged(state);
@@ -133,6 +134,7 @@ public class DateRecycler extends RecyclerView {
                 break;
         }
     }
+
 
     private void adjustPositionWithVelocity(int velocityX, int velocityY) {
         if (getChildCount() > 0) {
