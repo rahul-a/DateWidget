@@ -1,19 +1,16 @@
 package views;
 
 import android.content.Context;
-import android.graphics.Typeface;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.util.SparseArray;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
@@ -25,7 +22,6 @@ import org.joda.time.DateTime;
 
 import controllers.DatePickerController;
 import timber.log.Timber;
-import utils.Utils;
 
 /**
  * Created by priyabratapatnaik on 12/11/15.
@@ -89,7 +85,7 @@ public class DateView extends RelativeLayout implements View.OnClickListener {
                 }
             }
 
-            setSpinnerSelectionWithoutCallingListener(monthSpinner, position);
+            // setSpinnerSelectionWithoutCallingListener(monthSpinner, position);
         }
     };
 
@@ -254,7 +250,7 @@ public class DateView extends RelativeLayout implements View.OnClickListener {
         int padding = getResources().getDimensionPixelSize(R.dimen.std_padding);
 
         // Adding the monthSpinner View
-        monthSpinner = new Spinner(context);
+        /*monthSpinner = new Spinner(context);
         monthSpinner.setId(R.id.month_spinner);
         params = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
         params.setMargins(0, 0, padding, 0);
@@ -263,10 +259,10 @@ public class DateView extends RelativeLayout implements View.OnClickListener {
         ArrayAdapter<CharSequence> spinnerAdapter = ArrayAdapter.createFromResource(context, R.array.month_array, android.R.layout.simple_spinner_item);
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         monthSpinner.setAdapter(spinnerAdapter);
-        addView(monthSpinner);
+        addView(monthSpinner);*/
 
         // Adding the selected month TextView
-        dateSelected = new TextView(context);
+        /*dateSelected = new TextView(context);
         params = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
         params.setMargins(padding, 0, padding, padding);
         params.addRule(RIGHT_OF, R.id.month_spinner);
@@ -278,7 +274,7 @@ public class DateView extends RelativeLayout implements View.OnClickListener {
         dateSelected.setTypeface(null, Typeface.BOLD);
         dateSelected.setTextColor(Utils.getAccentColorFromThemeIfAvailable(context));
         dateSelected.setId(R.id.date_selected_text);
-        addView(dateSelected);
+        addView(dateSelected);*/
 
         // Adding the left arrow
         leftArrow = new ImageView(context);
@@ -291,7 +287,7 @@ public class DateView extends RelativeLayout implements View.OnClickListener {
         params.addRule(ALIGN_BOTTOM, R.id.date_recycler_view);
         params.addRule(ALIGN_PARENT_LEFT);
         leftArrow.setLayoutParams(params);
-        leftArrow.setPadding(0, 0, padding, 0);
+        leftArrow.setPadding(padding, padding, padding, padding);
         addView(leftArrow);
 
         // Adding the right arrow
@@ -305,7 +301,7 @@ public class DateView extends RelativeLayout implements View.OnClickListener {
         params.addRule(ALIGN_BOTTOM, R.id.date_recycler_view);
         params.addRule(ALIGN_PARENT_RIGHT);
         rightArrow.setLayoutParams(params);
-        leftArrow.setPadding(padding, 0, 0, 0);
+        rightArrow.setPadding(padding, padding, padding, padding);
         addView(rightArrow);
 
         // Adding the WeekView
@@ -325,8 +321,8 @@ public class DateView extends RelativeLayout implements View.OnClickListener {
         leftArrow.setOnClickListener(this);
         rightArrow.setOnClickListener(this);
         addOnWeekChangedListener(mOnWeekChangedListener);
-        monthSpinner.setOnItemSelectedListener(monthSelectedListener);
-        monthSpinner.setSelection(new DateTime().getMonthOfYear() - 1);
+        // monthSpinner.setOnItemSelectedListener(monthSelectedListener);
+        // monthSpinner.setSelection(new DateTime().getMonthOfYear() - 1);
 
     }
 
@@ -343,11 +339,11 @@ public class DateView extends RelativeLayout implements View.OnClickListener {
     protected void onSizeChanged(int w, int h, int oldW, int oldH) {
         super.onSizeChanged(w, h, oldW, oldH);
 
-        RelativeLayout.LayoutParams params = new LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+        /*RelativeLayout.LayoutParams params = new LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
         int padding = getResources().getDimensionPixelSize(R.dimen.std_padding);
         params.setMargins((w / 14) - (2 * padding), 0, padding, padding);
         params.addRule(CENTER_HORIZONTAL);
-        dateSelected.setLayoutParams(params);
+        dateSelected.setLayoutParams(params);*/
 
     }
 

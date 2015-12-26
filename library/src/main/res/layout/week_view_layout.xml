@@ -8,6 +8,7 @@
     <views.SimpleWeekView
         android:id="@+id/week_view"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        app:selected_circle_color="@color/bumble_green" />
 
 </RelativeLayout>

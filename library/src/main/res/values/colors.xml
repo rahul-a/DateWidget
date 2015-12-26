@@ -49,5 +49,6 @@
     <color name="mdtp_done_text_color_dark_normal">#ffffff</color>
     <color name="mdtp_done_text_color_dark_disabled">#888888</color>
     <color name="mdtp_done_disabled_dark">#bfbfbf</color>
-
+    <color name="bumble_green">#85bc3c</color>
+    <color name="muted_day_label">#c5c5c5</color>
 </resources>

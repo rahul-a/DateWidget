@@ -20,7 +20,7 @@ public class Day implements Parcelable {
         year = dateTime.getYear();
         month = dateTime.getMonthOfYear();
         monthName = dateTime.monthOfYear().getAsText();
-        day = dateTime.dayOfWeek().getAsShortText();
+        day = dateTime.dayOfWeek().getAsText();
         date = dateTime.getDayOfMonth();
     }
 
@@ -35,7 +35,7 @@ public class Day implements Parcelable {
         year = dateTime.getYear();
         month = dateTime.getMonthOfYear();
         monthName = dateTime.monthOfYear().getAsText();
-        day = dateTime.dayOfWeek().getAsShortText();
+        day = dateTime.dayOfWeek().getAsText();
         date = dateTime.getDayOfMonth();
     }
 

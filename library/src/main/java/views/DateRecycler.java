@@ -60,7 +60,7 @@ public class DateRecycler extends RecyclerView {
 
         mMonthDayLabelPaint.setAntiAlias(true);
         mMonthDayLabelPaint.setTextSize(context.getResources().getDimensionPixelSize(R.dimen.mdtp_month_day_label_text_size));
-        mMonthDayLabelPaint.setColor(context.getResources().getColor(R.color.mdtp_red));
+        mMonthDayLabelPaint.setColor(context.getResources().getColor(R.color.muted_day_label));
         mMonthDayLabelPaint.setStyle(Paint.Style.FILL);
         mMonthDayLabelPaint.setTextAlign(Paint.Align.CENTER);
         mMonthDayLabelPaint.setFakeBoldText(true);
@@ -218,7 +218,7 @@ public class DateRecycler extends RecyclerView {
 
             mMonthDayLabelPaint.setAntiAlias(true);
             mMonthDayLabelPaint.setTextSize(context.getResources().getDimensionPixelSize(R.dimen.mdtp_month_day_label_text_size));
-            mMonthDayLabelPaint.setColor(context.getResources().getColor(R.color.mdtp_red));
+            mMonthDayLabelPaint.setColor(context.getResources().getColor(R.color.muted_day_label));
             mMonthDayLabelPaint.setStyle(Paint.Style.FILL);
             mMonthDayLabelPaint.setTextAlign(Paint.Align.CENTER);
             mMonthDayLabelPaint.setFakeBoldText(true);

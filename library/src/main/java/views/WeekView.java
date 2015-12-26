@@ -5,11 +5,8 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
-import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -117,7 +114,7 @@ public abstract class WeekView extends View {
                 ContextCompat.getColor(context, R.color.mdtp_white));
 
         mTodayNumberColor = typedArray.getColor(R.styleable.weekView_today_color,
-                ContextCompat.getColor(context, R.color.mdtp_accent_color));
+                ContextCompat.getColor(context, R.color.bumble_green));
 
         mDateTextSize = typedArray.getDimensionPixelSize(R.styleable.weekView_date_size,
                 res.getDimensionPixelSize(R.dimen.mdtp_day_number_size));
