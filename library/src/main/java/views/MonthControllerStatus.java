@@ -38,22 +38,22 @@ public class MonthControllerStatus extends View {
         mTopLabelPaint = new Paint();
         mTopLabelPaint.setTextSize(res.getDimension(R.dimen.month_controller_extra_label_size));
         mTopLabelPaint.setAntiAlias(true);
-        mTopLabelPaint.setColor(res.getColor(R.color.mdtp_dark_gray));
+        mTopLabelPaint.setColor(res.getColor(R.color.dark_gray));
 
         mDatePaint = new Paint();
         mDatePaint.setTextSize(res.getDimension(R.dimen.month_controller_month_date_size));
         mDatePaint.setAntiAlias(true);
-        mDatePaint.setColor(res.getColor(R.color.mdtp_dark_gray));
+        mDatePaint.setColor(res.getColor(R.color.dark_gray));
 
         mDayPaint = new Paint();
         mDayPaint.setTextSize(res.getDimension(R.dimen.month_controller_month_day_size));
         mDayPaint.setAntiAlias(true);
-        mDayPaint.setColor(res.getColor(R.color.mdtp_dark_gray));
+        mDayPaint.setColor(res.getColor(R.color.dark_gray));
 
         mMonthLabelPaint = new Paint();
         mMonthLabelPaint.setTextSize(res.getDimension(R.dimen.month_controller_month_label_size));
         mMonthLabelPaint.setAntiAlias(true);
-        mMonthLabelPaint.setColor(res.getColor(R.color.mdtp_dark_gray));
+        mMonthLabelPaint.setColor(res.getColor(R.color.dark_gray));
 
         init();
     }

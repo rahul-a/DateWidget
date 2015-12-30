@@ -28,6 +28,6 @@ public class Utils {
             return typedValue.data;
         }
         // Return the value in mdtp_accent_color
-        return context.getColor(R.color.mdtp_accent_color);
+        return context.getColor(R.color.accent_color);
     }
 }
