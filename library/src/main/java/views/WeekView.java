@@ -117,13 +117,13 @@ public abstract class WeekView extends View {
                 ContextCompat.getColor(context, R.color.bumble_green));
 
         mDateTextSize = typedArray.getDimensionPixelSize(R.styleable.weekView_date_size,
-                res.getDimensionPixelSize(R.dimen.mdtp_day_number_size));
+                res.getDimensionPixelSize(R.dimen.date_number_size));
 
         mDayLabelTextSize = typedArray.getDimensionPixelSize(R.styleable.weekView_day_label_size,
-                res.getDimensionPixelSize(R.dimen.mdtp_day_number_size));
+                res.getDimensionPixelSize(R.dimen.date_number_size));
 
         mSelectedDayCircleSize = typedArray.getDimensionPixelSize(R.styleable.weekView_selected_circle_size,
-                res.getDimensionPixelSize(R.dimen.mdtp_day_number_select_circle_radius));
+                res.getDimensionPixelSize(R.dimen.day_select_circle_radius));
 
         mDaySeparatorWidth = typedArray.getDimensionPixelSize(R.styleable.weekView_day_separator_width,
                 res.getDimensionPixelSize(R.dimen.day_separator));
@@ -132,9 +132,9 @@ public abstract class WeekView extends View {
         typedArray.recycle();
         mController = controller;
 
-        mWeekDayHeaderSize = res.getDimensionPixelOffset(R.dimen.mdtp_month_list_item_header_height);
+        mWeekDayHeaderSize = res.getDimensionPixelOffset(R.dimen.month_list_item_header_height);
 
-        mDayNumFrameHeight = (res.getDimensionPixelOffset(R.dimen.mdtp_month_row_height)) * mMaxRows;
+        mDayNumFrameHeight = (res.getDimensionPixelOffset(R.dimen.month_row_height)) * mMaxRows;
 
         // Sets up any standard paints that will be used
         initView();

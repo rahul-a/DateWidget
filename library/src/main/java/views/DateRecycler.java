@@ -59,7 +59,7 @@ public class DateRecycler extends RecyclerView {
         setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
 
         mMonthDayLabelPaint.setAntiAlias(true);
-        mMonthDayLabelPaint.setTextSize(context.getResources().getDimensionPixelSize(R.dimen.mdtp_month_day_label_text_size));
+        mMonthDayLabelPaint.setTextSize(context.getResources().getDimensionPixelSize(R.dimen.day_label_text_size));
         mMonthDayLabelPaint.setColor(context.getResources().getColor(R.color.muted_day_label));
         mMonthDayLabelPaint.setStyle(Paint.Style.FILL);
         mMonthDayLabelPaint.setTextAlign(Paint.Align.CENTER);
@@ -217,7 +217,7 @@ public class DateRecycler extends RecyclerView {
             setOrientation(orientation);
 
             mMonthDayLabelPaint.setAntiAlias(true);
-            mMonthDayLabelPaint.setTextSize(context.getResources().getDimensionPixelSize(R.dimen.mdtp_month_day_label_text_size));
+            mMonthDayLabelPaint.setTextSize(context.getResources().getDimensionPixelSize(R.dimen.day_label_text_size));
             mMonthDayLabelPaint.setColor(context.getResources().getColor(R.color.muted_day_label));
             mMonthDayLabelPaint.setStyle(Paint.Style.FILL);
             mMonthDayLabelPaint.setTextAlign(Paint.Align.CENTER);
@@ -245,8 +245,8 @@ public class DateRecycler extends RecyclerView {
             final int childCount = parent.getChildCount();
                 int dayWidthHalf = ((right - left)) / (7 * 2);
             Resources res = parent.getResources();
-            int weekHeaderSize = res.getDimensionPixelOffset(R.dimen.mdtp_month_list_item_header_height);
-            int dayLabelTextSize = res.getDimensionPixelSize(R.dimen.mdtp_day_number_size);
+            int weekHeaderSize = res.getDimensionPixelOffset(R.dimen.month_list_item_header_height);
+            int dayLabelTextSize = res.getDimensionPixelSize(R.dimen.date_number_size);
             int y = weekHeaderSize - (dayLabelTextSize) / 2;
 
             for (int i = 0; i < childCount; i++) {

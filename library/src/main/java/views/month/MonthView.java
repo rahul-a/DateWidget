@@ -65,11 +65,11 @@ public abstract class MonthView extends WeekView {
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.weekView);
 
         mHighlightEndCircleSize = typedArray.getDimensionPixelSize(R.styleable.weekView_selected_circle_size,
-                res.getDimensionPixelSize(R.dimen.mdtp_day_number_highlight_end_select_circle_size));
+                res.getDimensionPixelSize(R.dimen.day_number_highlight_end_select_circle_size));
 
         mMaxRows = 6;
 
-        mDayNumFrameHeight = (res.getDimensionPixelOffset(R.dimen.mdtp_month_row_height)) * mMaxRows;
+        mDayNumFrameHeight = (res.getDimensionPixelOffset(R.dimen.month_row_height)) * mMaxRows;
     }
 
     /**

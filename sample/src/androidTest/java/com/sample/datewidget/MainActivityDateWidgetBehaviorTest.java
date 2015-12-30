@@ -46,8 +46,8 @@ public class MainActivityDateWidgetBehaviorTest {
         int dayWidthHalf = viewWidth / 14;
 
         Resources res = mainActivity.getResources();
-        int weekHeaderSize = res.getDimensionPixelOffset(R.dimen.mdtp_month_list_item_header_height);
-        int dayLabelTextSize = res.getDimensionPixelSize(R.dimen.mdtp_day_number_size);
+        int weekHeaderSize = res.getDimensionPixelOffset(R.dimen.month_list_item_header_height);
+        int dayLabelTextSize = res.getDimensionPixelSize(R.dimen.date_number_size);
         int y = weekHeaderSize - (dayLabelTextSize) / 2;
 
         Day selectedDay;

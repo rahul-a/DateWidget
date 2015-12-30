@@ -2,19 +2,19 @@
     <!-- Default screen margins, per the Android Design guidelines. -->
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
-    <dimen name="mdtp_month_day_label_text_size">18sp</dimen>
-    <dimen name="mdtp_day_number_select_circle_radius">24dp</dimen>
-    <dimen name="mdtp_date_picker_view_animator_height">128dp</dimen>
-    <dimen name="mdtp_day_number_size">18sp</dimen>
-    <dimen name="mdtp_month_list_item_header_height">47dp</dimen>
-    <dimen name="mdtp_month_row_height">88dp</dimen>
+    <dimen name="day_label_text_size">18sp</dimen>
+    <dimen name="day_select_circle_radius">24dp</dimen>
+    <dimen name="date_view_animator_height">128dp</dimen>
+    <dimen name="date_number_size">18sp</dimen>
+    <dimen name="month_list_item_header_height">47dp</dimen>
+    <dimen name="month_row_height">88dp</dimen>
     <dimen name="calendar_frame_height">121dp</dimen>
     <dimen name="large_text_size">18sp</dimen>
     <dimen name="std_padding">8dp</dimen>
     <dimen name="padding_medium">16dp</dimen>
     <dimen name="day_separator">8dp</dimen>
     <dimen name="scroll_offset">100dp</dimen>
-    <dimen name="mdtp_day_number_highlight_end_select_circle_size">16dp</dimen>
+    <dimen name="day_number_highlight_end_select_circle_size">16dp</dimen>
     <dimen name="month_controller_month_date_size">42sp</dimen>
     <dimen name="month_controller_month_label_size">18sp</dimen>
     <dimen name="month_controller_month_day_size">12sp</dimen>
