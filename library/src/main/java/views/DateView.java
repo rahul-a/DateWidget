@@ -163,7 +163,7 @@ public class DateView extends RelativeLayout implements View.OnClickListener {
 
         @Override
         public Day getSelectedDay() {
-            return mSelectedDay;
+            return mDatePickerController != null ? mDatePickerController.getSelectedDay() : mSelectedDay;
         }
 
         @Override
@@ -211,12 +211,12 @@ public class DateView extends RelativeLayout implements View.OnClickListener {
 
         @Override
         public Day getToday() {
-            return mToday;
+            return mDatePickerController != null ? mDatePickerController.getStartDate() : mToday;
         }
 
         @Override
         public Day getStartDate() {
-            return mToday;
+            return mDatePickerController != null ? mDatePickerController.getStartDate() : mToday;
         }
 
         @Override
@@ -400,7 +400,7 @@ public class DateView extends RelativeLayout implements View.OnClickListener {
             throw new IllegalArgumentException("Adapter should extend WeekAdapter");
         }
         dateRecycler.setAdapter(adapter);
-        dateRecycler.scrollToPresent();
+        dateRecycler.scrollToDay(mDatePickerController != null ? mDatePickerController.getToday() : mToday);
     }
 
     public void addOnWeekChangedListener(OnWeekChangedListener listener) {
@@ -525,6 +525,7 @@ public class DateView extends RelativeLayout implements View.OnClickListener {
             mDateTime = mController == null ? new DateTime() : mController.getStartDate().toDateTime();
             int presentYear = mDateTime.getYear();
             mOffset = presentYear - mDateTime.getYear();
+            Timber.v("start time: %s", mDateTime);
             adjustWeekCount();
         }
 
@@ -563,6 +564,7 @@ public class DateView extends RelativeLayout implements View.OnClickListener {
                     mWeekCount++;
                 } else {
                     mWeekCount = mDateTime.weekOfWeekyear().withMaximumValue().getWeekOfWeekyear();
+                    mWeekCount++;
                 }
             }
         }
@@ -582,7 +584,13 @@ public class DateView extends RelativeLayout implements View.OnClickListener {
 
             int actualYear = getYearForWeekPosition(position);
             int weekPos = getTranslatedWeekPosition(position, actualYear);
-            DateTime dateTime = mDateTime.withYear(actualYear).withWeekyear(actualYear).withWeekOfWeekyear(weekPos).withDayOfWeek(1);
+            Timber.v("Pos: %s", position);
+                DateTime dateTime;
+            if (position == 0) {
+                dateTime = mDateTime.withYear(actualYear).withWeekyear(actualYear).withWeekOfWeekyear(53).withDayOfWeek(1);
+            } else {
+                dateTime = mDateTime.withYear(actualYear).withWeekyear(actualYear).withWeekOfWeekyear(weekPos).withDayOfWeek(1);
+            }
             Timber.v("Pos %s, Year %s, week %s", position, mDateTime.getYear(), mDateTime.withYear(actualYear).withWeekyear(actualYear).withWeekOfWeekyear(weekPos).withDayOfWeek(1));
             weekView.setStartDate(dateTime);
         }
@@ -592,14 +600,15 @@ public class DateView extends RelativeLayout implements View.OnClickListener {
             int translatedPos = position;
             if (mMode == MODE_YEAR) {
                 maxWeeks = mDateTime.withYear(year).weekOfWeekyear().withMaximumValue().getWeekOfWeekyear();
-                translatedPos = (position + 1) % maxWeeks;
+                Timber.v("max weeks: %s", maxWeeks);
+                translatedPos = (position) % maxWeeks;
                 if (translatedPos == 0) {
                     translatedPos += maxWeeks;
                 }
             } else if (mMode == MODE_MONTH) {
                 translatedPos += firstWeek;
             }
-            // Timber.v("Translated pos %s", translatedPos);
+            Timber.v("Translated pos %s", translatedPos);
             return translatedPos;
         }
 
@@ -619,6 +628,10 @@ public class DateView extends RelativeLayout implements View.OnClickListener {
                         }
                     }
                 }
+            } else {
+                if (position == 0) {
+                    return actualYear - 1;
+                }
             }
             // Timber.v("Returning year %s", actualYear);
             return actualYear;
@@ -627,16 +640,24 @@ public class DateView extends RelativeLayout implements View.OnClickListener {
         public int getWeekPositionInAdapter(int weekOfWeekYear, int year) {
             int startYear = mDateTime.getYear();
             while (year != startYear) {
+                if (mMode == MODE_YEAR) {
+                    if (weekOfWeekYear > 51) {
+                        int weekPosition = 0;
+                        Timber.v("week pos: %s, weekOfWeekYear: %s", weekPosition, weekOfWeekYear);
+                        return weekPosition;
+                    }
+                }
                 weekOfWeekYear += mDateTime.withYear(startYear).weekOfWeekyear().withMaximumValue().getWeekOfWeekyear();
                 startYear += 1;
             }
             int weekPosition = 0;
             if (mMode == MODE_YEAR) {
-                weekPosition = weekOfWeekYear - 1;
+                weekPosition = weekOfWeekYear;
+                Timber.v("week pos: %s, weekOfWeekYear: %s", weekPosition, weekOfWeekYear);
             } else if (mMode == MODE_MONTH) {
                 weekPosition = weekOfWeekYear - firstWeek;
             }
-            if (weekPosition > 0 && weekPosition < mWeekCount) {
+            if (weekPosition >= 0 && weekPosition < mWeekCount) {
                 Timber.v("WeekPosition: %s, WeekCount: %s", weekPosition, mWeekCount);
                 return weekPosition;
             }

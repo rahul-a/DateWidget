@@ -3,8 +3,8 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
-    <color name="mdtp_white">#ffffff</color>
-    <color name="background_color">@color/mdtp_white</color>
+    <color name="white">#ffffff</color>
+    <color name="background_color">@color/white</color>
     <color name="circle_background">@color/background_color</color>
     <color name="circle_color">#f5f5f5</color>
     <color name="line_background">#cccccc</color>
@@ -21,7 +21,7 @@
 
     <!-- DatePicker Dark Theme -->
     <color name="date_picker_view_animator_dark_theme">@color/light_gray</color>
-    <color name="date_picker_text_normal_dark_theme">@color/mdtp_white</color>
+    <color name="date_picker_text_normal_dark_theme">@color/white</color>
     <color name="date_picker_month_day_dark_theme">#b4b4b4</color>
     <color name="date_picker_text_disabled_dark_theme">#767676</color>
     <color name="date_picker_text_highlighted_dark_theme">@color/date_picker_text_normal_dark_theme</color>
@@ -37,4 +37,5 @@
     <color name="done_disabled_dark">#bfbfbf</color>
     <color name="bumble_green">#85bc3c</color>
     <color name="muted_day_label">#c5c5c5</color>
+    <color name="color_text_normal">#ff212121</color>
 </resources>

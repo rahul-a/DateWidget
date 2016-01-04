@@ -99,7 +99,7 @@ public abstract class WeekView extends View {
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.weekView);
 
         mDayTextColor = typedArray.getColor(R.styleable.weekView_day_text_color,
-                ContextCompat.getColor(context, R.color.mdtp_date_picker_text_normal));
+                ContextCompat.getColor(context, R.color.color_text_normal));
 
         mMonthDayTextColor = typedArray.getColor(R.styleable.weekView_week_label_color,
                 ContextCompat.getColor(context, R.color.date_picker_month_day_dark_theme));
@@ -111,7 +111,7 @@ public abstract class WeekView extends View {
                 ContextCompat.getColor(context, R.color.date_picker_text_highlighted_dark_theme));
 
         mSelectedDayTextColor = typedArray.getColor(R.styleable.weekView_selected_day_color,
-                ContextCompat.getColor(context, R.color.mdtp_white));
+                ContextCompat.getColor(context, R.color.white));
 
         mTodayNumberColor = typedArray.getColor(R.styleable.weekView_today_color,
                 ContextCompat.getColor(context, R.color.bumble_green));

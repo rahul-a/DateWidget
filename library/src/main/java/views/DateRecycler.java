@@ -171,7 +171,12 @@ public class DateRecycler extends RecyclerView {
         }
         final DateView.WeekAdapter weekAdapter = (DateView.WeekAdapter) getAdapter();
         int weekOfWeekyear = day.toDateTime().getWeekOfWeekyear();
-        final int actualPosition = weekAdapter.getWeekPositionInAdapter(weekOfWeekyear, day.getYear());
+        int year = day.getYear();
+        if (day.getMonth() == 1 && weekOfWeekyear > 51) {
+            year = year - 1;
+        }
+        Timber.v("DateRecycler:: #ScrollToDay: week %s, year: %s", weekOfWeekyear, year);
+        final int actualPosition = weekAdapter.getWeekPositionInAdapter(weekOfWeekyear, year);
         if (actualPosition >= 0 && actualPosition < getAdapter().getItemCount()) {
             scrollToPosition(actualPosition);
             post(new Runnable() {
@@ -185,7 +190,7 @@ public class DateRecycler extends RecyclerView {
             });
         } else {
             // If present date isn't found in the adapter then scroll to the start date
-            Timber.e("Couldn't scroll to position: %s", actualPosition);
+            Timber.e("Couldn't scroll to position: %s, will scroll to start %s", actualPosition, weekAdapter.getStartDay());
             scrollToDay(weekAdapter.getStartDay());
         }
     }
